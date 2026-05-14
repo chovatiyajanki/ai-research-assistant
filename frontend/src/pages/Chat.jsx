@@ -18,6 +18,9 @@ import {
     updateChat,
 } from "../services/chatServices";
 
+const useBackend =
+    import.meta.env.VITE_USE_BACKEND === "true";
+
 export default function Chat() {
 
     const [question, setQuestion] = useState("");
@@ -39,7 +42,33 @@ export default function Chat() {
 
     const bottomRef = useRef(null);
 
+    // =========================
+    // MOCK DATA
+    // =========================
+
+    const mockMessages = [
+        {
+            id: 1,
+            role: "ai",
+            text: "👋 Welcome to AI Research Assistant",
+        },
+        {
+            id: 2,
+            role: "user",
+            text: "What can you do?",
+        },
+        {
+            id: 3,
+            role: "ai",
+            text:
+                "I can help summarize documents, answer questions, and assist with AI research.",
+        },
+    ];
+
+    // =========================
     // LOAD DOCUMENT
+    // =========================
+
     useEffect(() => {
 
         const storedId =
@@ -54,9 +83,21 @@ export default function Chat() {
 
     }, []);
 
-    // LOAD HISTORY
+    // =========================
+    // LOAD CHAT HISTORY
+    // =========================
+
     useEffect(() => {
 
+        // MOCK MODE
+        if (!useBackend) {
+
+            setMessages(mockMessages);
+
+            return;
+        }
+
+        // REAL BACKEND
         const loadHistory = async () => {
 
             if (!docId) return;
@@ -92,7 +133,10 @@ export default function Chat() {
 
     }, [docId]);
 
+    // =========================
     // AUTO SCROLL
+    // =========================
+
     useEffect(() => {
 
         bottomRef.current?.scrollIntoView({
@@ -101,10 +145,13 @@ export default function Chat() {
 
     }, [messages, loading]);
 
+    // =========================
     // ASK QUESTION
+    // =========================
+
     const askQuestion = async () => {
 
-        if (!docId || !question.trim())
+        if (!question.trim())
             return;
 
         const currentQuestion = question;
@@ -114,6 +161,39 @@ export default function Chat() {
         setLoading(true);
 
         try {
+
+            // MOCK MODE
+            if (!useBackend) {
+
+                setTimeout(() => {
+
+                    setMessages((prev) => [
+
+                        ...prev,
+
+                        {
+                            id: Date.now(),
+                            role: "user",
+                            text: currentQuestion,
+                        },
+
+                        {
+                            id: Date.now() + 1,
+                            role: "ai",
+                            text:
+                                "This is a mock AI response because backend is not deployed yet.",
+                        },
+                    ]);
+
+                    setLoading(false);
+
+                }, 1000);
+
+                return;
+            }
+
+            // REAL BACKEND
+            if (!docId) return;
 
             const res =
                 await askQuestionAPI({
@@ -150,8 +230,18 @@ export default function Chat() {
         }
     };
 
+    // =========================
     // CLEAR CHAT
+    // =========================
+
     const clearChatHistory = async () => {
+
+        if (!useBackend) {
+
+            setMessages([]);
+
+            return;
+        }
 
         if (!docId) return;
 
@@ -173,7 +263,10 @@ export default function Chat() {
         }
     };
 
+    // =========================
     // SAVE EDIT
+    // =========================
+
     const handleSave = async (chatId) => {
 
         if (!editText.trim()) return;
@@ -182,6 +275,35 @@ export default function Chat() {
 
         try {
 
+            // MOCK MODE
+            if (!useBackend) {
+
+                setMessages((prev) =>
+                    prev.map((msg) => {
+
+                        if (
+                            msg.id === chatId &&
+                            msg.role === "user"
+                        ) {
+
+                            return {
+                                ...msg,
+                                text: editText,
+                            };
+                        }
+
+                        return msg;
+                    })
+                );
+
+                setEditingChatId(null);
+
+                setEditText("");
+
+                return;
+            }
+
+            // REAL BACKEND
             const res =
                 await updateChat(chatId, {
                     chat_question: editText,
@@ -338,169 +460,121 @@ export default function Chat() {
             >
 
                 {/* HEADER */}
-                {docId && (
+                <div
+                    className="
+                        sticky
+                        top-0
+                        z-20
+                        bg-white/85
+                        backdrop-blur-xl
+                        border-b
+                        px-3
+                        sm:px-4
+                        py-3
+                    "
+                >
 
                     <div
                         className="
-                            sticky
-                            top-0
-                            z-20
-                            bg-white/85
-                            backdrop-blur-xl
-                            border-b
-                            px-3
-                            sm:px-4
-                            py-3
+                            flex
+                            items-center
+                            justify-between
+                            gap-3
                         "
                     >
 
+                        {/* LEFT */}
                         <div
                             className="
                                 flex
                                 items-center
-                                justify-between
                                 gap-3
+                                min-w-0
                             "
                         >
 
-                            {/* LEFT */}
-                            <div
+                            {/* MOBILE MENU */}
+                            <button
+                                onClick={() =>
+                                    setShowSidebar(
+                                        !showSidebar
+                                    )
+                                }
                                 className="
+                                    md:hidden
                                     flex
                                     items-center
-                                    gap-3
-                                    min-w-0
+                                    justify-center
+                                    w-10
+                                    h-10
+                                    rounded-xl
+                                    bg-white/70
+                                    border
+                                    shadow-md
                                 "
                             >
 
-                                {/* MOBILE MENU BUTTON */}
-                                <button
-                                    onClick={() =>
-                                        setShowSidebar(
-                                            !showSidebar
-                                        )
-                                    }
+                                {showSidebar ? (
+                                    <HiX size={22} />
+                                ) : (
+                                    <HiMenu size={22} />
+                                )}
+
+                            </button>
+
+                            {/* DOCUMENT */}
+                            <div className="min-w-0">
+
+                                <p
                                     className="
-                                        md:hidden
-                                        flex
-                                        items-center
-                                        justify-center
-                                        w-10
-                                        h-10
-                                        rounded-xl
-                                        bg-white/70
-                                        backdrop-blur-md
-                                        border
-                                        border-white/40
-                                        shadow-md
-                                        hover:bg-white
-                                        active:scale-95
-                                        transition-all
-                                        shrink-0
+                                        text-sm
+                                        font-semibold
                                     "
                                 >
+                                    AI Research Assistant
+                                </p>
 
-                                    <motion.div
-                                        animate={{
-                                            rotate:
-                                                showSidebar
-                                                    ? 90
-                                                    : 0,
-                                        }}
-                                        transition={{
-                                            duration: 0.2,
-                                        }}
-                                    >
-
-                                        {showSidebar ? (
-                                            <HiX
-                                                size={22}
-                                                className="
-                                                    text-slate-700
-                                                "
-                                            />
-                                        ) : (
-                                            <HiMenu
-                                                size={22}
-                                                className="
-                                                    text-slate-700
-                                                "
-                                            />
-                                        )}
-
-                                    </motion.div>
-
-                                </button>
-
-                                {/* DOCUMENT INFO */}
-                                <div className="min-w-0">
-
-                                    <p
-                                        className="
-                                            text-sm
-                                            font-semibold
-                                            text-slate-800
-                                        "
-                                    >
-                                        Active Document
-                                    </p>
-
-                                    <p
-                                        className="
-                                            text-xs
-                                            sm:text-sm
-                                            text-gray-500
-                                            truncate
-                                            max-w-[180px]
-                                            sm:max-w-[300px]
-                                        "
-                                    >
-                                        {fileName}
-                                    </p>
-
-                                </div>
+                                <p
+                                    className="
+                                        text-xs
+                                        text-gray-500
+                                    "
+                                >
+                                    Mock Mode Enabled
+                                </p>
 
                             </div>
 
-                            {/* CLEAR CHAT */}
-                            <button
-                                onClick={
-                                    clearChatHistory
-                                }
-                                className="
-                                    bg-red-500
-                                    hover:bg-red-600
-                                    text-white
-                                    px-3
-                                    sm:px-4
-                                    py-2
-                                    rounded-xl
-                                    text-xs
-                                    sm:text-sm
-                                    font-medium
-                                    shadow-sm
-                                    transition-all
-                                    shrink-0
-                                "
-                            >
-                                Clear Chat
-                            </button>
-
                         </div>
+
+                        {/* CLEAR */}
+                        <button
+                            onClick={
+                                clearChatHistory
+                            }
+                            className="
+                                bg-red-500
+                                hover:bg-red-600
+                                text-white
+                                px-4
+                                py-2
+                                rounded-xl
+                                text-sm
+                            "
+                        >
+                            Clear Chat
+                        </button>
 
                     </div>
 
-                )}
+                </div>
 
                 {/* UPLOAD SECTION */}
                 <div
                     className="
                         bg-white/70
-                        backdrop-blur-md
                         border-b
                         p-3
-                        sm:p-4
-                        overflow-x-hidden
                     "
                 >
 
@@ -521,7 +595,6 @@ export default function Chat() {
                     className="
                         flex-1
                         overflow-y-auto
-                        overflow-x-hidden
                         px-2
                         py-3
                         sm:px-4
@@ -531,152 +604,103 @@ export default function Chat() {
 
                     <div className="max-w-5xl mx-auto">
 
-                        {messages.length === 0 ? (
+                        {messages.map((msg, index) => (
 
-                            <div
-                                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    text-center
-                                    text-gray-500
-                                    mt-24
-                                    px-4
-                                "
-                            >
-                                Upload a document and ask
-                                questions
-                            </div>
+                            <motion.div
 
-                        ) : (
+                                key={`${msg.role}-${msg.id}`}
 
-                            messages.map((msg, index) => (
+                                initial={{
+                                    opacity: 0,
+                                    y: 10,
+                                }}
 
-                                <motion.div
+                                animate={{
+                                    opacity: 1,
+                                    y: 0,
+                                }}
 
-                                    key={`${msg.role}-${msg.id}`}
+                                transition={{
+                                    delay:
+                                        index * 0.03,
+                                }}
 
-                                    initial={{
-                                        opacity: 0,
-                                        y: 10,
-                                    }}
-
-                                    animate={{
-                                        opacity: 1,
-                                        y: 0,
-                                    }}
-
-                                    transition={{
-                                        delay:
-                                            index * 0.03,
-                                    }}
-
-                                    className={`mb-5 flex ${msg.role === "user"
+                                className={`mb-5 flex ${
+                                    msg.role === "user"
                                         ? "justify-end"
                                         : "justify-start"
-                                        }`}
-                                >
+                                }`}
+                            >
 
-                                    <div
-                                        className={`
-                                            w-fit
-                                            max-w-[95%]
-                                            sm:max-w-[85%]
-                                            lg:max-w-[70%]
-                                            rounded-3xl
-                                            p-4
-                                            shadow-lg
-                                            overflow-hidden
-                                            break-words
-                                            ${msg.role === "user"
+                                <div
+                                    className={`
+                                        w-fit
+                                        max-w-[95%]
+                                        sm:max-w-[85%]
+                                        lg:max-w-[70%]
+                                        rounded-3xl
+                                        p-4
+                                        shadow-lg
+                                        break-words
+                                        ${
+                                            msg.role === "user"
                                                 ? "bg-blue-600 text-white"
                                                 : "bg-white border"
-                                            }
-                                        `}
+                                        }
+                                    `}
+                                >
+
+                                    {/* LABEL */}
+                                    <div
+                                        className="
+                                            flex
+                                            items-center
+                                            gap-2
+                                            text-xs
+                                            opacity-70
+                                            mb-3
+                                        "
                                     >
 
-                                        {/* LABEL */}
-                                        <div
-                                            className="
-                                                flex
-                                                items-center
-                                                gap-2
-                                                text-xs
-                                                opacity-70
-                                                mb-3
-                                            "
-                                        >
-
-                                            {msg.role ===
-                                                "user" ? (
-                                                <>
-                                                    <FaUserCircle />
-                                                    <span>
-                                                        You
-                                                    </span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <BsRobot />
-                                                    <span>
-                                                        AI Assistant
-                                                    </span>
-                                                </>
-                                            )}
-
-                                        </div>
-
-                                        {/* MESSAGE */}
-                                        <div
-                                            className="
-                                                prose
-                                                prose-sm
-                                                max-w-none
-                                                break-words
-                                                overflow-x-auto
-                                                prose-pre:max-w-full
-                                                prose-pre:overflow-x-auto
-                                            "
-                                        >
-
-                                            <ReactMarkdown>
-                                                {msg.text}
-                                            </ReactMarkdown>
-
-                                        </div>
-
-                                        {/* EDIT */}
                                         {msg.role ===
-                                            "user" && (
-
-                                                <button
-                                                    onClick={() => {
-
-                                                        setEditingChatId(
-                                                            msg.id
-                                                        );
-
-                                                        setEditText(
-                                                            msg.text
-                                                        );
-                                                    }}
-                                                    className="
-                                                        text-yellow-300
-                                                        text-xs
-                                                        mt-3
-                                                    "
-                                                >
-                                                    Edit
-                                                </button>
-
-                                            )}
+                                        "user" ? (
+                                            <>
+                                                <FaUserCircle />
+                                                <span>
+                                                    You
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BsRobot />
+                                                <span>
+                                                    AI Assistant
+                                                </span>
+                                            </>
+                                        )}
 
                                     </div>
 
-                                </motion.div>
+                                    {/* MESSAGE */}
+                                    <div
+                                        className="
+                                            prose
+                                            prose-sm
+                                            max-w-none
+                                        "
+                                    >
 
-                            ))
-                        )}
+                                        <ReactMarkdown>
+                                            {msg.text}
+                                        </ReactMarkdown>
+
+                                    </div>
+
+                                </div>
+
+                            </motion.div>
+
+                        ))}
 
                         {/* LOADING */}
                         {loading && (
@@ -700,7 +724,6 @@ export default function Chat() {
                         bottom-0
                         z-20
                         bg-white/90
-                        backdrop-blur-md
                         border-t
                         p-3
                     "
@@ -756,14 +779,7 @@ export default function Chat() {
                                 rounded-2xl
                                 p-4
                                 resize-none
-                                overflow-hidden
-                                min-h-[55px]
-                                max-h-[180px]
                                 outline-none
-                                focus:ring-2
-                                focus:ring-blue-500
-                                text-base
-                                sm:text-sm
                             "
                         />
 
@@ -780,9 +796,6 @@ export default function Chat() {
                                 py-3
                                 rounded-2xl
                                 font-semibold
-                                shadow-lg
-                                w-full
-                                sm:w-auto
                             "
                         >
 

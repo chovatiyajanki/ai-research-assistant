@@ -1,7 +1,14 @@
 import axios from "axios";
 
+const useBackend = 
+        import.meta.env.VITE_USE_BACKEND === "true";
+
 const API = axios.create({
-    baseURL: "http://192.168.1.12:8000",
+
+    baseURL: useBackend
+    ? import.meta.env.VITE_API_URL
+    : "",
+    
 });
 
 API.interceptors.request.use((config) => {

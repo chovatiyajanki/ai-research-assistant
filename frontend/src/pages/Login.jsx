@@ -14,6 +14,9 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const useBackend =
+        import.meta.env.VITE_USE_BACKEND === "true";
+
     const handleLogin = async () => {
 
         if (!email || !password) {
@@ -29,31 +32,58 @@ export default function Login() {
 
             setError("");
 
-            const formData = new URLSearchParams();
+            // =========================
+            // REAL BACKEND LOGIN
+            // =========================
 
-            formData.append("username", email);
+            if (useBackend) {
 
-            formData.append("password", password);
+                const formData = new URLSearchParams();
 
-            const res = await API.post(
-                "/auth/login",
-                formData,
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/x-www-form-urlencoded",
-                    },
-                }
-            );
+                formData.append("username", email);
 
-            localStorage.setItem(
-                "token",
-                res.data.access_token
-            );
+                formData.append("password", password);
 
-            API.defaults.headers.common[
-                "Authorization"
-            ] = `Bearer ${res.data.access_token}`;
+                const res = await API.post(
+                    "/auth/login",
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded",
+                        },
+                    }
+                );
+
+                localStorage.setItem(
+                    "token",
+                    res.data.access_token
+                );
+
+                API.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${res.data.access_token}`;
+
+            }
+
+            // =========================
+            // MOCK LOGIN MODE
+            // =========================
+
+            else {
+
+                localStorage.setItem(
+                    "token",
+                    "demo-token"
+                );
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify({
+                        email,
+                    })
+                );
+            }
 
             navigate("/chat");
 
