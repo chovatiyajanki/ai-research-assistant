@@ -1,0 +1,945 @@
+17-march-2026
+
+Today's Completed Tasks:
+=>numpy 
+=>pandas 
+====================================================
+Today's Ongoing Tasks:
+=>matplotlib
+====================================================
+Tasks for Tomorrow:
+=>matplotlib
+=>seaborn
+
+18-march-2026
+
+Today's Completed Tasks:
+=>matplolib
+=>seaborn
+=> Exporatory Data Analysis
+====================================================
+Today's Ongoing Tasks:
+=> feature Engineering
+====================================================
+Tasks for Tomorrow:
+=>feature Engineering
+
+19-march-2026
+
+Today's Completed Tasks:
+=> feature Scaling 
+=> normalization using minmax scale
+=> standardization using Standard scalar
+=> encoding categorical data using  ordinal encoding and one hot encoding
+====================================================
+Today's Ongoing Tasks:
+=> column transformer
+====================================================
+Tasks for Tomorrow:
+=>column transformer
+=> scikit learn pipeline
+
+20-march-2026
+
+Today's Completed Tasks:
+=> scikit learn pipeline
+=> function transformation using log transformer, reciprocal transformer, square/square root transformer
+=> power transformer using Box-cox transformer, yeo-Johnson transformer 
+=> curse of dimensionality
+=> principal component analysis
+====================================================
+Today's Ongoing Tasks:
+=> binning and binarization using Discretization , Quantile Binning , KMeans Binning
+====================================================
+Tasks for Tomorrow:
+=>binning and binarization using Discretization , Quantile Binning , KMeans Binning
+=> handling missing data 
+
+
+23-march-2026
+
+Today's Completed Tasks:
+=> binning and binarization using Discretization , Quantile Binning , KMeans Binning
+=> handling mixed variable and date-time columns
+=> handling missing CCA(Complete case analysis),numerical, and categorical data 
+=> handling missing data using multivariate imputation,MICM algorithm 
+=> outlier detection and removal using z-score,IQR and percentile/Winsorization methods
+====================================================
+Today's Ongoing Tasks:
+=> introduction and types of deep learning
+====================================================
+Tasks for Tomorrow:
+=> introduction and types of deep learning  
+
+24-march-2026
+
+Today's Completed Tasks:
+=> introduction and types of deep learning
+=> what is perceptron
+=> multi layer perceptron
+=> customer churn prediction,handwritten digit classification,gradute addmissioon prediction
+====================================================
+Today's Ongoing Tasks:
+=> loss functions
+====================================================
+Tasks for Tomorrow:
+=>loss functions 
+
+
+25-march-2026
+
+Today's Completed Tasks:
+=> loss functions
+=> backpropagation
+=> vanishing gradient problem
+=> gradient descent
+=> CNN(convolution operation,padding,strides,pooling layer)
+====================================================
+Today's Ongoing Tasks:
+=> CNN architecture(LE NET-5)
+====================================================
+Tasks for Tomorrow:
+=> CNN architecture(LE NET-5)
+
+26-march-2026
+
+Today's Completed Tasks:
+=> CNN architecture(LE NET-5)
+=> backpropagation in CNN
+=> cat and dog image classification
+=> data augmentation in keras
+=> transfer learning in keras
+=> pre trained model in keras
+====================================================
+Today's Ongoing Tasks:
+=> functional learning
+====================================================
+Tasks for Tomorrow:
+=> functional learning
+
+27-march-2026
+
+Today's Completed Tasks:
+=> one_input_multiple_output functional model
+=> multiple_input_one_output functional model
+=> bulid age gender model using MobileNetV2 
+=> introduction to RNN 
+=> RNN forward propogation 
+=> RNN sentiment analysis using integer encoding and embedding
+====================================================
+Today's Ongoing Tasks:
+=> types of RNN
+====================================================
+Tasks for Tomorrow:
+=>  types of RNN
+
+28-march-2026
+
+Today's Completed Tasks:
+=> Types of RNN
+=> problems with RNN
+=> Long Short Term Memory
+=> Long Short Term Memory Architecture
+=> Next Word predictor using LSTM
+=> GRU
+====================================================
+Today's Ongoing Tasks:
+=> Deep RNN 
+====================================================
+Tasks for Tomorrow:
+=> Deep RNN 
+
+30-march-2026
+
+Today's Completed Tasks:
+=> Deep RNN
+=> Bidirectional RNN
+=> Bidirectional LSTM
+=> introduction to sequence to sequence architecture
+=> types of sequence to sequence architecture
+====================================================
+Today's Ongoing Tasks:
+=> encoder decoder sequence to sequence architecture
+====================================================
+Tasks for Tomorrow:
+=> encoder decoder sequence to sequence architecture
+
+31-march-2026
+
+Today's Completed Tasks:
+
+=> Gained detailed understanding of end-to-end preprocessing steps including:
+
+  * Text cleaning, normalization, and filtering
+  * Tokenization techniques (BPE and tokenizer workflows)
+  * Conversion of text to token IDs and sequence generation
+  * Padding, attention masks, and batching strategies
+  * Integration of token embeddings and positional encoding for transformer inputs
+
+====================================================
+
+Today's Ongoing Tasks:
+=> Understanding core concepts of self-attention, scaled dot-product attention, and their role in contextual representation
+
+====================================================
+
+Tasks for Tomorrow:
+=> Complete Attention Mechanism concepts including multi-head attention
+=> Implement attention mechanisms using Python/TensorFlow
+=> Begin integrating attention with preprocessing pipeline for end-to-end understanding
+
+
+1-April-2026
+
+Today's Completed Tasks:
+=> Implemented full LLM preprocessing pipeline using TensorFlow (data cleaning, tokenization, sequence creation, batching, augmentation, deduplication)
+=> Verified processed dataset by decoding token sequences back into readable text
+=> Built initial GPT architecture including embedding layer, positional encoding, and multi-head attention
+=> Implemented core Transformer components: Layer Normalization, GELU activation, Feed Forward Network, and residual (shortcut) connections
+=> Debugged and resolved multiple errors in TransformerBlock (attention input issue, missing return, incorrect layer usage)
+=> Successfully compiled GPT model and prepared it for training
+
+====================================================
+
+Today's Ongoing Tasks:
+
+=> Training GPT model on preprocessed dataset and monitoring performance
+=> Fine-tuning Transformer block implementation for stability and accuracy
+
+====================================================
+
+Tasks for Tomorrow:
+
+=> Implement text generation (next-word prediction) from trained GPT model
+=> Add sampling techniques (Top-k / Top-p) for better output quality
+=> Evaluate model performance and optimize hyperparameters (learning rate, layers, embedding size)
+
+2-April-2026
+
+Today's Completed Tasks:
+ 
+=> Implemented a Mini GPT model from scratch using TensorFlow, including embedding, transformer blocks, and next-token prediction.
+=> Integrated Multi-Head Self-Attention into the model for improved contextual understanding.
+=> Added LoRA layers to enable efficient fine-tuning while keeping base model weights frozen.
+=> Built manual training loop with gradient tape for next-token prediction on custom datasets.
+=> Developed text generation functionality, allowing the model to produce coherent outputs.
+=> Prepared dataset pipeline from text/CSV files, including tokenization, sequence creation, and batching.
+=> build spam detection using finetuning classification and instruction method
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> prompt engineering
+
+==================================================== 
+
+Tasks for Tomorrow:
+=> prompt engineering
+
+3-April-2026
+
+Today's Completed Tasks:
+ 
+=> introductionto RAG
+=> Data Ingestion Pipeline
+=> Project Setup
+=> Document Structure In Langchain
+=> Building Embedding In RAG
+=> Building Vector StoreDB
+=> building RAG Retriever
+==================================================== 
+Today's Ongoing Tasks:
+
+=> Building Retreival query Pipeline With GROQ
+=> Integration Vectordb in the pipeline
+
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> Building Retreival query Pipeline With GROQ
+=> Integration Vectordb in the pipeline
+=> Enhanced RAG Pipeline Features
+
+6-April-2026
+
+Today's Completed Tasks:
+
+=> Building Retreival query Pipeline With GROQ
+=> Integration Vectordb in the pipeline
+=> Enhanced RAG Pipeline Features
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> RAG With Typesense- Lightning Fast,Open Source Search
+
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> RAG With Typesense- Lightning Fast,Open Source Search
+
+7-April-2026
+
+Today's Completed Tasks:
+
+=> RAG With Typesense- Lightning Fast,Open Source Search
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> Email Verification and Validation System using Streamlit
+
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> Email Verification and Validation System using Streamlit
+
+
+8-April-2026
+
+Today's Completed Tasks:
+
+=> Agentic RAG using Langraph
+=> Langchain :
+		1. document loader
+		2. text splitters
+		3. embeddings
+		4. vector store
+		5. retriever
+		6. prompts 
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=>  Langchain :
+		7. Model 
+
+==================================================== 
+
+Tasks for Tomorrow:
+
+=>  Langchain :
+		7. Model
+
+
+9-April-2026
+
+Today's Completed Tasks:
+
+=> Langchain : 
+		7.Model
+		8.Output parsers
+	        9.Memory
+	        10.RAG
+		11.Runnable and Chains
+		12.Tools and Tool Calling
+		13.Agents
+
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> Build AI Research Assistant Agent
+	Search research papers, Summarize them, Answer questions, Give ONE best answer (like you asked earlier)
+	Technologies:
+		LangChain or LangGraph
+		FAISS
+		FastAPI
+		Streamlit
+		ollama API
+	Features:
+		PDF upload + Q&A
+		Multi-step reasoning agent
+		Best-answer selection (ranking system)
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> Build AI Research Assistant Agent
+	Search research papers, Summarize them, Answer questions, Give ONE best answer (like you asked earlier)
+	Technologies:
+		LangChain or LangGraph
+		FAISS
+		FastAPI
+		Streamlit
+		ollama API
+	Features:
+		PDF upload + Q&A
+		Multi-step reasoning agent
+		Best-answer selection (ranking system)
+
+
+10-April-2026
+
+Today's Completed Tasks:
+
+=> Build AI Research Assistant Agent
+	Search research papers, Summarize them, Answer questions, Give ONE best answer (like you asked earlier)
+	Technologies:
+		LangChain or LangGraph
+		FAISS
+		FastAPI
+		Streamlit
+		ollama API
+	Features:
+		PDF upload + Q&A
+		Multi-step reasoning agent
+		Best-answer selection (ranking system)
+
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> llama-index
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> llama-index
+
+
+11-April-2026
+
+Today's Completed Tasks:
+
+=> prompt templates in llama-index
+=> simple webpage reader in llama-index
+=> simple directory reader in llama-index
+=> llama-index hub (dataset)
+=> vectorstoreindex in llama-index
+=> local embedding with huggingface in llama-index
+=> vectorstoreindex indexing in disk and chroma db in llama-index
+=> Query engine
+=> RAG from Scratch 
+=> load saved embedding
+=> Extract metadata
+=> Llamaparse file
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> PII(Personally identifiable Information) in Llama-index
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> PII(Personally identifiable Information) in Llama-index	
+
+13-April-2026
+
+Today's Completed Tasks:
+
+=> PII(Personally identifiable Information) in Llama-index
+=> Google gemini API and LLM
+=> ollama llamaindex chat
+=> llamaindex pandas query engine
+=> llamaindex nodes
+=> llamaindex document management
+=> Llama 3.1 Local RAG using ollama
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> pinecone vector database 
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> pinecone vector database
+
+14-April-2026
+
+Today's Completed Tasks:
+
+=>Vector DB: Pinecone (retrieval layer foundation)
+=> LlamaIndex ReactAgent (tool-using agent design)
+=> Agentic RAG (reasoning + retrieval loop system)
+=> LangGraph (graph-based agent architecture: nodes, edges, state, workflow, memory)
+
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> Tailwind CSS 
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> Tailwind CSS
+
+
+15-April-2026 - Leave For Exam
+16-April-2026 - Leave For Exam
+17-April-2026 - Leave For Exam
+
+
+20-April-2026
+
+Today's Completed Tasks:
+
+=> setting up
+=> font,sizing,margins,padding,border
+=> square bracket notation
+=> responsive
+=> Hover,focus
+=> apply and layer directive
+=> facebook clone using tailwind css(not responsive)
+
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> micrsoft clone (responsive)
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> micrsoft clone (responsive)
+
+21-April-2026
+
+Today's Completed Tasks:
+
+=> micrsoft clone (responsive)
+=> container,filter,interactivity,background,column,flex,grid,trasation,transform,animation
+
+==================================================== 
+Today's Ongoing Tasks:
+
+=> clone google UI
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> clone google UI
+
+
+22-April-2026
+
+Today's Completed Tasks:
+
+=> clone google UI (responsive)
+=> React project: Todo App
+		- Add
+		- Edit task
+		- Local Storage
+		- Dark Mode
+		- Filter tasks 
+==================================================== 
+Today's Ongoing Tasks:
+
+=> weather app using react
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> weather app using react
+
+23-April-2026
+
+Today's Completed Tasks:	
+
+=> Developed Weather App using React.js
+=> Implemented city-based weather search using Open Weather API
+=> Displayed current weather data (temperature, humidity, wind speed, feels-like)
+=> Built reusable components:
+	Search Bar
+	Weather Card
+	Loader
+	Forecast
+=> Implemented 5-day weather forecast feature
+=> Added geolocation feature to fetch current location weather
+=> Implemented search history using local Storage (recent 5 searches)
+=> Added dark mode / light mode toggle
+=> Handled API errors and invalid city input
+==================================================== 
+Today's Ongoing Tasks:
+
+=> E-commerce Cart App react
+	
+==================================================== 
+
+Tasks for Tomorrow:
+
+=> E-commerce Cart App react
+
+24-April-2026
+
+Today's Completed Tasks:
+
+=> Implemented cart functionality in React project
+=> Added quantity increase/decrease feature
+=> Added remove from cart functionality
+=> Implemented product search functionality
+=> Added category filter feature
+=> Added product sorting (Low→High, High→Low, A-Z)
+=> Implemented wishlist functionality
+=> Added dark mode toggle
+=> Integrated localStorage for cart persistence
+=> Added toast notifications for cart/wishlist actions
+
+Today's Ongoing Tasks:
+
+=> Fixing wishlist component integration
+=> Debugging App component issues
+
+Tasks for Tomorrow:
+
+=> Add checkout page
+=> Add backend using FastAPI
+=> Connect PostgreSQL database
+=> Add user authentication
+=> Deploy full-stack project
+
+25-April-2026
+
+Today's Completed Tasks:
+
+=> Started learning FastAPI basics
+=> Understood FastAPI project structure
+=> Learned GET, POST API methods
+=> Practiced creating basic CRUD APIs
+=> Learned request body handling using Pydantic models
+=> Explored API testing using Swagger UI (/docs)
+
+Today's Ongoing Tasks:
+
+=> Learning database integration with FastAPI
+=> Understanding PostgreSQL connection setup
+
+Tasks for Tomorrow:
+
+=> Connect FastAPI with PostgreSQL
+=> Build product APIs for e-commerce project
+=> Implement cart APIs
+=> Start user authentication (JWT)
+=> Connect React frontend with FastAPI backend
+
+27-April-2026
+
+Today's Completed Tasks:
+
+=> What is an API? | Introduction to APIs | FAST API for Machine Learning
+
+=> FastAPI Philosophy | How to setup FastAPI | Installation and Code Demo
+
+=> HTTP Methods in FastAPI
+
+=> Path & Query Params in FastAPI
+
+
+Today's Ongoing Tasks:
+
+=> Pydantic Crash Course | Data Validation in Python
+
+
+Tasks for Tomorrow:
+
+=> Pydantic Crash Course | Data Validation in Python
+
+=> Post Request in FastAPI | What is Request Body?
+
+=> PUT & DELETE in FastAPI
+
+=> Serving ML Models with FastAPI 
+
+=> Improving the FastAPI API 
+
+=>Docker for Machine Learning | Docker Crash Course | 
+
+=> FastAPI + Docker Tutorial for Beginners | How to Dockerize a FastAPI API Application 
+
+=> How to Deploy a FastAPI API on AWS
+
+28-April-2026
+
+Today's Completed Tasks:
+
+=> Pydantic Crash Course | Data Validation in Python
+
+=> Post Request in FastAPI | What is Request Body?
+
+=> PUT & DELETE in FastAPI
+
+=> Serving ML Models with FastAPI 
+
+=> Improving the FastAPI API 
+
+=> Build patient management system using pydantic with CRUD Opreation
+
+=> Build insurance premium prediction system 
+	- Frontend with streamlit
+	- Backend with FastAPI
+	- randomforest ML Model with featureEngineering
+
+Today's Ongoing Tasks:
+
+=>Docker for Machine Learning
+
+
+Tasks for Tomorrow:
+
+=>Docker for Machine Learning
+
+=> FastAPI + Docker Tutorial for Beginners | How to Dockerize a FastAPI API Application 
+
+=> How to Deploy a FastAPI API on AWS
+
+29-April-2026
+
+Today's Completed Tasks:
+
+=> Docker for Machine Learning
+
+=> Docker this Build insurance premium prediction system 
+	- Frontend with streamlit
+	- Backend with FastAPI
+	- randomforest ML Model with featureEngineering
+  
+
+=> How to Deploy a FastAPI API on AWS 
+
+Today's Ongoing Tasks:
+
+=> PostgreSQL
+
+
+Tasks for Tomorrow:
+
+=> PostgreSQL
+
+
+30-April-2026
+
+Today's Completed Tasks:
+
+=> Studied fundamentals of PostgreSQL(database, tables, constraints, data types)
+=> Created a database (`ecommerce_db`) and designed multi-table schema (users, products, orders)
+=> Implemented table relationships using primary key and foreign key
+=> Inserted sample data (10 records in each table)
+=> Practiced SQL operations: SELECT, INSERT, UPDATE, DELETE
+=> Learned and implemented different types of JOINS (INNER, LEFT, RIGHT, FULL)
+=> Practiced subqueries and aggregate functions
+=> Explored basic window functions (RANK, ROW_NUMBER)
+
+Today's Ongoing Tasks:
+
+=> Practicing advanced SQL queries (complex joins and nested queries)
+=> Improving understanding of window functions and real-world use cases
+=> Optimizing queries and understanding performance basics
+
+Tasks for Tomorrow:
+
+=> Integrate PostgreSQL with backend using FastAPI
+=> Learn ORM concepts using SQLAlchemy
+=> Build basic CRUD APIs connected to database
+
+
+1-May-2026
+
+Today's Completed Tasks:
+
+=> Built full CRUD APIs using FastAPI
+=> Connected PostgreSQL database
+=> Implemented Employee & Department models (SQLAlchemy)
+=> Fixed 404 and 422 errors (debugging API issues)
+=> Implemented update API with partial update (`Optional` fields)
+=> Added pagination (`skip`, `limit`)
+
+Today's Ongoing Tasks:
+
+=> Improving project structure (moving logic fully to `crud.py`)
+=> Adding proper error handling (try/except, rollback)
+
+Tasks for Tomorrow:
+
+=> Add JWT Authentication (login & signup system)
+=> Implement password hashing (security)
+=> Add response models with relationships (Department inside Employee)
+=> Validate email using Pydantic
+=> Test all APIs in Postman
+
+
+4-May-2026
+
+Today's Completed Tasks:
+
+=> Implemented JWT Authentication system (login & signup)
+=> Added password hashing using bcrypt
+=> Fixed multiple backend errors (500, 422, 401)
+=> Integrated OAuth2 authentication with Swagger UI
+=> Successfully tested protected routes with token
+=> Debugged and resolved:
+	bcrypt password length issue
+	schema & model mismatches
+	token authorization issues
+=> Verified all APIs using Swagger/Postman
+
+Today's Ongoing Tasks:
+
+=> Improving authentication flow (understanding OAuth2 deeply)
+=> Reviewing code structure for better organization
+
+ Tasks for Tomorrow:
+
+=> Add role-based authentication (admin/user)
+=> Improve project structure (separate auth modules)
+=> Add response models with relationships (Department inside Employee)
+=> Implement better error handling
+=> Start planning main project architecture (AI SaaS)
+
+5-May-2026
+
+Today's Completed Tasks:
+
+=> Set up backend project structure (FastAPI)
+=> Implemented JWT Authentication (signup/login)
+=> Built protected routes (/users/me, admin access)
+=> Implemented document upload system (PDF upload + DB storage)
+
+Today's Ongoing Tasks:
+
+=> Debugging file upload edge cases (duplicate names, validation)
+=> Preparing for RAG pipeline (next step)
+
+Tasks for Tomorrow:
+
+=> Start RAG pipeline:
+	Extract text from PDF
+	Chunk text
+	Generate embeddings
+=> Integrate embeddings into backend service
+=> Connect document upload → RAG processing
+
+6-May-2026
+
+Today's Completed Tasks:
+
+=> Completed backend setup (FastAPI project architecture)
+=> Implemented JWT authentication system (signup/login)
+=> Built protected routes with role-based access control
+=> Implemented document upload system (PDF upload + storage)
+=> Built RAG pipeline (PDF → chunking → embeddings → FAISS storage)
+=> Built query system (ask questions over documents using LLM)
+=> Implemented chat history (stored Q&A in PostgreSQL)
+
+Today's Ongoing Tasks:
+
+=> Starting frontend integration with backend APIs
+=> Building UI for chat system (React + Tailwind)
+
+Tasks for Tomorrow:
+
+=> Continue frontend development:
+=> Chat UI (ChatGPT-style interface)
+=> Sidebar for chat history
+=> Document upload UI
+=> Connect frontend with backend APIs:
+	Login
+	Chat
+	Upload
+=> Improve UI/UX polish
+
+7-May-2026
+
+Today's Completed Tasks:
+
+=> Integrated complete chat system with FastAPI backend and React frontend
+=> Implemented multi-document PDF upload and selection functionality
+=> Added real-time AI question-answering over uploaded PDF documents
+=> Implemented persistent chat history using PostgreSQL database
+=> Added automatic chat history loading on document selection
+=> Built ChatGPT-style responsive chat interface using Tailwind CSS
+=> Added loading states and smooth auto-scroll functionality
+=> Fixed backend/frontend API integration issues and validation errors
+=> Debugged RAG pipeline integration and vector store handling
+=> Improved overall application structure and UI flow
+
+Today's Ongoing Tasks:
+
+=> Improving sidebar and document management UI
+=> Enhancing chat experience and response rendering
+=> Planning advanced frontend features for better user interaction
+
+Tasks for Tomorrow:
+
+=> Add delete document functionality
+=> Add markdown rendering for AI responses
+=> Improve responsive design for mobile/tablet devices
+=> Add logout and profile management features
+=> Implement streaming AI responses (typing effect)
+=> Add edit message feature like ChatGPT
+=> Improve sidebar UI and document management system
+
+
+8-May-2026
+
+ Today's Completed Tasks:
+
+=> Implemented Login page with JWT authentication
+=> Created Signup page with form validation
+=> Built Chat UI with message rendering (User + AI messages)
+=> Integrated ReactMarkdown for AI response formatting
+=> Added document listing UI with selection feature
+=> Implemented delete document functionality (frontend + backend API integration)
+=> Fixed routing issues between Login, Signup, and Chat pages
+=> Improved sidebar and chat layout UI
+
+Today's Ongoing Tasks:
+
+=> Fixing database foreign key issue while deleting documents
+=> Improving chat UI (better message bubbles + scrolling experience)
+=> Debugging delete chat history backend error
+=> Enhancing document selection state handling
+=> Optimizing API calls for better performance
+
+ Tasks for Tomorrow:
+
+=> Fix cascade delete for documents and chat history in backend
+=> Add "Edit Chat " functionality in frontend UI
+=> Improve sidebar design (active document highlight + cleaner layout)
+=> Add loading skeletons for chat and document list
+=> Implement logout feature
+=> Start building protected routes (auth guard for /chat page)
+
+9-May-2026
+
+Today's Completed Tasks:
+
+=> Fixed foreign key issue in document deletion (resolved cascade relationship between documents and chat history)
+=> Successfully implemented cascade delete for related chat records when a document is removed
+=> Fixed backend routing issues causing 404 errors in chat history API
+=> Corrected frontend API integration for /chat/history/{doc_id} endpoint
+=> Fixed Edit Chat UI functionality (edit + save working properly in chat messages)
+=> Improved message state management for chat history (user + AI alignment fixed)
+=> Debugged and resolved Sidebar API call issue for history loading
+=> Improved chat rendering logic and removed ID mismatch bugs
+
+Today's Ongoing Tasks:
+
+=> Enhancing chat UI (better message spacing, alignment, and readability improvements)
+=> Improving loading experience for chat history (smooth skeleton or loader)
+=> Debugging minor UI inconsistencies in edit chat mode
+=> Optimizing API response handling for faster rendering
+=> Enhancing document selection behavior in sidebar (active state highlight improvement)
+
+Tasks for Tomorrow:
+
+=> Add file upload feature in chat (images + text file support)
+=> Implement file preview in chat messages (image preview + file download)
+=> Improve backend upload handling using FastAPI UploadFile
+=> Start implementing chat attachments database structure
+=> Improve UI/UX of chat input (attach button + drag & drop support)
+=> Add logout functionality with token cleanup
+=> Implement protected routes (auth guard for chat dashboard)

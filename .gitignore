@@ -1,0 +1,29 @@
+# Dependencies
+node_modules//
+venv/
+__pycache__/
+
+# Enviroment variables
+.env
+.env.local
+
+# Bulid Folders 
+dist/
+bulid/
+
+# Logs 
+logs/
+*.log
+
+# Operating System Files 
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# python
+*.pyc
+
+# Database
+*.sqlite3

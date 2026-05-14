@@ -1,0 +1,32 @@
+# Backend
+
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-dotenv
+passlib[bcrypt]
+python-jose
+pydantic-settings
+pydantic
+email-validator
+bcrypt==4.0.1
+python-multipart
+
+# RAG 
+langchain 
+faiss-cpu
+pypdf 
+sentence-transformers
+langchain-community 
+langchain-text-splitters
+Ollama
+
+# Database
+alembic
+
+# for multiple file upload 
+python-multipart
+pytesseract
+PyPDF2
+pillow
