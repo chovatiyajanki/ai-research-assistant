@@ -19,6 +19,7 @@ from app.models.document import Document
 from app.models.chat import Chat
 
 import os
+import shutil
 
 router = APIRouter()
 
@@ -54,8 +55,11 @@ async def upload_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Save file
-    file_path = save_file(file)
+    try:
+        # Save file
+        file_path = save_file(file)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     # Save in database
     doc = create_document(
@@ -69,15 +73,41 @@ async def upload_document(
     # Reset file pointer after save
     file.file.seek(0)
 
-    # Extrect text
-    extracted_text = await extract_text(file)
+    try:
+        # Extrect text
+        extracted_text = await extract_text(file)
+    except ValueError as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        db.delete(doc)
+        db.commit()
+        raise HTTPException(status_code=400, detail=str(e))
 
-    # Split Text  into chunks
-    chunks = split_text(extracted_text  )
-    print(f"[DEBUG] Chunk created: {len(chunks)}")
+    if not extracted_text.strip():
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        db.delete(doc)
+        db.commit()
+        raise HTTPException(status_code=400, detail="No readable text found in file")
 
-    # Create vector store 
-    vectorstore = create_vector_store(chunks,doc.document_id)
+    try:
+        # Split Text  into chunks
+        chunks = split_text(extracted_text  )
+
+        # Create vector store 
+        vectorstore = create_vector_store(chunks,doc.document_id)
+    except Exception as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        vectorstore_path = os.path.join("vectorstore", str(doc.document_id))
+        if os.path.exists(vectorstore_path):
+            shutil.rmtree(vectorstore_path)
+        db.delete(doc)
+        db.commit()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Document processing failed: {str(e)}"
+        )
 
     # Save vectorstore locally
     # folder_path = f"vectorstore/{doc.document_id}"
@@ -87,21 +117,27 @@ async def upload_document(
 
     return {
         "message" : "Uploaded and processed succcessfully",
-        "doc_id" : doc.document_id
+        "doc_id" : doc.document_id,
+        "file_name": doc.file_name
         } 
 
 # @router.delete("/documents/{doc_id}")
 @router.delete("/{doc_id}")
 def delete_document(
     doc_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     document = db.query(Document).filter(
-        Document.document_id == doc_id
+        Document.document_id == doc_id,
+        Document.user_id == current_user.user_id
     ).first()
 
     if not document:
         raise HTTPException(status_code=404, detail="Document Not Found")
+
+    file_path = document.file_path
+    vectorstore_path = os.path.join("vectorstore", str(doc_id))
     
     # Delete related chats First
     db.query(Chat).filter(
@@ -111,6 +147,12 @@ def delete_document(
     # After that delete document
     db.delete(document)
     db.commit()
+
+    if file_path and os.path.exists(file_path):
+        os.remove(file_path)
+
+    if os.path.exists(vectorstore_path):
+        shutil.rmtree(vectorstore_path)
 
     return {
         "message": "Document Deleted"

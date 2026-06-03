@@ -17,6 +17,6 @@ async def extract_text(file):
     elif filename.endswith((".png",".jpg",".jpeg")):
         return await extract_image_text(file)
     
-    return "Unsupported file type"
+    raise ValueError("Unsupported file type")
             
             

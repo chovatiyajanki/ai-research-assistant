@@ -15,3 +15,13 @@ def create_document(db: Session, file_name: str, file_path: str, user_id: int):
 
 def get_user_documents(db: Session, user_id: int):
     return  db.query(Document).filter(Document.user_id == user_id).all()
+
+def get_user_document(db: Session, document_id: int, user_id: int):
+    return (
+        db.query(Document)
+        .filter(
+            Document.document_id == document_id,
+            Document.user_id == user_id
+        )
+        .first()
+    )

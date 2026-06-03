@@ -13,6 +13,7 @@ from app.models.user import User
 from app.services.query_service import ask_question
 from app.db.session import get_db
 from app.crud.chat import create_chat, get_chat_history
+from app.crud.document import get_user_document
 from app.models.chat import Chat
 
 router = APIRouter()
@@ -27,6 +28,17 @@ def ask(
 ):
 
     try:
+        document = get_user_document(
+            db,
+            request.doc_id,
+            current_user.user_id
+        )
+
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Document not found"
+            )
 
         # Generate AI Answer
         chat_answer = ask_question(
@@ -55,6 +67,10 @@ def ask(
             detail=str(e)
         )
 
+    except HTTPException:
+
+        raise
+
     except Exception as e:
 
         raise HTTPException(
@@ -70,6 +86,17 @@ def history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    document = get_user_document(
+        db,
+        doc_id,
+        current_user.user_id
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
 
     return get_chat_history(
         db,
@@ -85,6 +112,17 @@ def delete_chat_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    document = get_user_document(
+        db,
+        doc_id,
+        current_user.user_id
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
 
     chats = db.query(Chat).filter(
         Chat.document_id == doc_id,

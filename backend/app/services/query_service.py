@@ -19,7 +19,8 @@ def load_vectorstore(doc_id: int):
         )
 
 def get_llm():
-    return Ollama(model="llama3")
+    # return Ollama(model="llama3")
+    return Ollama(model="qwen3:8b")
 
 def ask_question(doc_id: int, query: str):
     vectorstore = load_vectorstore(doc_id)

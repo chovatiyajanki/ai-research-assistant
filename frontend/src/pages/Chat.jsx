@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-
-import { motion, AnimatePresence } from "framer-motion";
-
-import { FaUserCircle } from "react-icons/fa";
-import { BsRobot } from "react-icons/bs";
-import { HiMenu, HiX } from "react-icons/hi";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+    Bot,
+    Check,
+    FileText,
+    Menu,
+    Pencil,
+    Send,
+    Trash2,
+    User,
+    X,
+} from "lucide-react";
 
 import Upload from "../components/documents/Upload";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -18,191 +24,69 @@ import {
     updateChat,
 } from "../services/chatServices";
 
-const useBackend =
-    import.meta.env.VITE_USE_BACKEND === "true";
-
 export default function Chat() {
-
     const [question, setQuestion] = useState("");
     const [messages, setMessages] = useState([]);
-
-    const [docId, setDocId] = useState(null);
-    const [fileName, setFileName] = useState("");
-
+    const [docId, setDocId] = useState(() => localStorage.getItem("doc_id"));
+    const [fileName, setFileName] = useState(() => localStorage.getItem("file_name") || "");
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-
-    const [editChatId, setEditingChatId] =
-        useState(null);
-
+    const [editChatId, setEditingChatId] = useState(null);
     const [editText, setEditText] = useState("");
-
-    const [showSidebar, setShowSidebar] =
-        useState(false);
-
+    const [showSidebar, setShowSidebar] = useState(false);
+    const [documentsVersion, setDocumentsVersion] = useState(0);
     const bottomRef = useRef(null);
 
-    // =========================
-    // MOCK DATA
-    // =========================
-
-    const mockMessages = [
-        {
-            id: 1,
-            role: "ai",
-            text: "👋 Welcome to AI Research Assistant",
-        },
-        {
-            id: 2,
-            role: "user",
-            text: "What can you do?",
-        },
-        {
-            id: 3,
-            role: "ai",
-            text:
-                "I can help summarize documents, answer questions, and assist with AI research.",
-        },
-    ];
-
-    // =========================
-    // LOAD DOCUMENT
-    // =========================
-
     useEffect(() => {
-
-        const storedId =
-            localStorage.getItem("doc_id");
-
-        const storedFile =
-            localStorage.getItem("file_name");
-
-        if (storedId) setDocId(storedId);
-
-        if (storedFile) setFileName(storedFile);
-
-    }, []);
-
-    // =========================
-    // LOAD CHAT HISTORY
-    // =========================
-
-    useEffect(() => {
-
-        // MOCK MODE
-        if (!useBackend) {
-
-            setMessages(mockMessages);
-
-            return;
-        }
-
-        // REAL BACKEND
         const loadHistory = async () => {
-
-            if (!docId) return;
+            if (!docId) {
+                setMessages([]);
+                return;
+            }
 
             try {
-
-                const res =
-                    await getDocHistory(docId);
-
-                const formatted =
-                    res.data.flatMap((chat) => [
-                        {
-                            id: chat.chat_id,
-                            role: "user",
-                            text: chat.chat_question,
-                        },
-                        {
-                            id: chat.chat_id,
-                            role: "ai",
-                            text: chat.chat_answer,
-                        },
-                    ]);
+                const res = await getDocHistory(docId);
+                const formatted = res.data.flatMap((chat) => [
+                    {
+                        id: chat.chat_id,
+                        role: "user",
+                        text: chat.chat_question,
+                    },
+                    {
+                        id: chat.chat_id,
+                        role: "ai",
+                        text: chat.chat_answer,
+                    },
+                ]);
 
                 setMessages(formatted);
-
             } catch (err) {
-
                 console.error(err);
+                setMessages([]);
             }
         };
 
         loadHistory();
-
     }, [docId]);
 
-    // =========================
-    // AUTO SCROLL
-    // =========================
-
     useEffect(() => {
-
-        bottomRef.current?.scrollIntoView({
-            behavior: "smooth",
-        });
-
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, loading]);
 
-    // =========================
-    // ASK QUESTION
-    // =========================
-
     const askQuestion = async () => {
+        if (!docId || !question.trim() || loading) return;
 
-        if (!question.trim())
-            return;
-
-        const currentQuestion = question;
-
+        const currentQuestion = question.trim();
         setQuestion("");
-
         setLoading(true);
 
         try {
+            const res = await askQuestionAPI({
+                doc_id: Number(docId),
+                question: currentQuestion,
+            });
 
-            // MOCK MODE
-            if (!useBackend) {
-
-                setTimeout(() => {
-
-                    setMessages((prev) => [
-
-                        ...prev,
-
-                        {
-                            id: Date.now(),
-                            role: "user",
-                            text: currentQuestion,
-                        },
-
-                        {
-                            id: Date.now() + 1,
-                            role: "ai",
-                            text:
-                                "This is a mock AI response because backend is not deployed yet.",
-                        },
-                    ]);
-
-                    setLoading(false);
-
-                }, 1000);
-
-                return;
-            }
-
-            // REAL BACKEND
-            if (!docId) return;
-
-            const res =
-                await askQuestionAPI({
-                    doc_id: Number(docId),
-                    question: currentQuestion,
-                });
-
-            const chatId =
-                res.data.chat_id;
+            const chatId = res.data.chat_id;
 
             setMessages((prev) => [
                 ...prev,
@@ -217,122 +101,47 @@ export default function Chat() {
                     text: res.data.answer,
                 },
             ]);
-
         } catch (err) {
-
             console.error(err);
-
-            alert("Error asking question");
-
+            alert(err.response?.data?.detail || "Error asking question");
         } finally {
-
             setLoading(false);
         }
     };
 
-    // =========================
-    // CLEAR CHAT
-    // =========================
-
     const clearChatHistory = async () => {
-
-        if (!useBackend) {
-
-            setMessages([]);
-
-            return;
-        }
-
         if (!docId) return;
-
-        if (
-            !window.confirm(
-                "Clear Chat History?"
-            )
-        ) return;
+        if (!window.confirm("Clear chat history?")) return;
 
         try {
-
             await deleteHistory(docId);
-
             setMessages([]);
-
         } catch (err) {
-
             console.error(err);
+            alert(err.response?.data?.detail || "Error clearing chat");
         }
     };
 
-    // =========================
-    // SAVE EDIT
-    // =========================
-
     const handleSave = async (chatId) => {
-
         if (!editText.trim()) return;
 
         setSaving(true);
 
         try {
-
-            // MOCK MODE
-            if (!useBackend) {
-
-                setMessages((prev) =>
-                    prev.map((msg) => {
-
-                        if (
-                            msg.id === chatId &&
-                            msg.role === "user"
-                        ) {
-
-                            return {
-                                ...msg,
-                                text: editText,
-                            };
-                        }
-
-                        return msg;
-                    })
-                );
-
-                setEditingChatId(null);
-
-                setEditText("");
-
-                return;
-            }
-
-            // REAL BACKEND
-            const res =
-                await updateChat(chatId, {
-                    chat_question: editText,
-                });
+            const res = await updateChat(chatId, {
+                chat_question: editText.trim(),
+            });
 
             setMessages((prev) =>
                 prev.map((msg) => {
-
-                    if (
-                        msg.id === chatId &&
-                        msg.role === "user"
-                    ) {
-
-                        return {
-                            ...msg,
-                            text: editText,
-                        };
+                    if (msg.id === chatId && msg.role === "user") {
+                        return { ...msg, text: editText.trim() };
                     }
 
-                    if (
-                        msg.id === chatId &&
-                        msg.role === "ai"
-                    ) {
-
+                    if (msg.id === chatId && msg.role === "ai") {
                         return {
                             ...msg,
-                            text:
-                                res.data.chat
-                                    .chat_answer,
+                            text: res.data.chat.chat_answer,
                         };
                     }
 
@@ -341,476 +150,280 @@ export default function Chat() {
             );
 
             setEditingChatId(null);
-
             setEditText("");
-
         } catch (err) {
-
             console.error(err);
-
+            alert(err.response?.data?.detail || "Error updating chat");
         } finally {
-
             setSaving(false);
         }
     };
 
+    const startEdit = (msg) => {
+        setEditingChatId(msg.id);
+        setEditText(msg.text);
+    };
+
+    const cancelEdit = () => {
+        setEditingChatId(null);
+        setEditText("");
+    };
+
+    const handleUploaded = (document) => {
+        if (document.doc_id) {
+            setDocId(document.doc_id);
+        }
+
+        if (document.file_name) {
+            setFileName(document.file_name);
+        }
+
+        setDocumentsVersion((version) => version + 1);
+    };
+
     return (
-
-        <div
-            className="
-                flex
-                min-h-screen
-                bg-gradient-to-br
-                from-slate-100
-                via-white
-                to-blue-100
-                overflow-hidden
-            "
-        >
-
-            {/* OVERLAY */}
+        <div className="flex h-dvh overflow-hidden bg-slate-100 text-slate-950">
             <AnimatePresence>
-
                 {showSidebar && (
-
                     <motion.div
-
                         initial={{ opacity: 0 }}
-
                         animate={{ opacity: 1 }}
-
                         exit={{ opacity: 0 }}
-
-                        onClick={() =>
-                            setShowSidebar(false)
-                        }
-
-                        className="
-                            fixed
-                            inset-0
-                            bg-black/40
-                            z-30
-                            md:hidden
-                        "
+                        onClick={() => setShowSidebar(false)}
+                        className="fixed inset-0 z-30 bg-slate-950/50 md:hidden"
                     />
-
                 )}
-
             </AnimatePresence>
 
-            {/* MOBILE SIDEBAR */}
             <AnimatePresence>
-
                 {showSidebar && (
-
                     <motion.div
-
                         initial={{ x: -320 }}
-
                         animate={{ x: 0 }}
-
                         exit={{ x: -320 }}
-
                         transition={{
                             type: "spring",
                             stiffness: 260,
                             damping: 25,
                         }}
-
-                        className="
-                            fixed
-                            top-0
-                            left-0
-                            z-40
-                            h-full
-                            w-[280px]
-                            md:hidden
-                        "
+                        className="fixed left-0 top-0 z-40 h-full w-[300px] md:hidden"
                     >
-
-                        <Sidebar
-                            docId={docId}
-                            setDocId={setDocId}
-                        />
-
+                        <Sidebar docId={docId} setDocId={setDocId} />
                     </motion.div>
-
                 )}
-
             </AnimatePresence>
 
-            {/* DESKTOP SIDEBAR */}
-            <div className="hidden md:block w-[280px] shrink-0">
-
-                <Sidebar
-                    docId={docId}
-                    setDocId={setDocId}
-                />
-
+            <div className="hidden w-[300px] shrink-0 md:block">
+                <Sidebar docId={docId} setDocId={setDocId} />
             </div>
 
-            {/* MAIN */}
-            <div
-                className="
-                    flex
-                    flex-col
-                    flex-1
-                    min-w-0
-                "
-            >
-
-                {/* HEADER */}
-                <div
-                    className="
-                        sticky
-                        top-0
-                        z-20
-                        bg-white/85
-                        backdrop-blur-xl
-                        border-b
-                        px-3
-                        sm:px-4
-                        py-3
-                    "
-                >
-
-                    <div
-                        className="
-                            flex
-                            items-center
-                            justify-between
-                            gap-3
-                        "
-                    >
-
-                        {/* LEFT */}
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                                min-w-0
-                            "
+            <main className="flex min-w-0 flex-1 flex-col">
+                <header className="flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 py-3 sm:px-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowSidebar(true)}
+                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 md:hidden"
+                            title="Open sidebar"
                         >
+                            <Menu size={20} />
+                        </button>
 
-                            {/* MOBILE MENU */}
-                            <button
-                                onClick={() =>
-                                    setShowSidebar(
-                                        !showSidebar
-                                    )
-                                }
-                                className="
-                                    md:hidden
-                                    flex
-                                    items-center
-                                    justify-center
-                                    w-10
-                                    h-10
-                                    rounded-xl
-                                    bg-white/70
-                                    border
-                                    shadow-md
-                                "
-                            >
-
-                                {showSidebar ? (
-                                    <HiX size={22} />
-                                ) : (
-                                    <HiMenu size={22} />
-                                )}
-
-                            </button>
-
-                            {/* DOCUMENT */}
-                            <div className="min-w-0">
-
-                                <p
-                                    className="
-                                        text-sm
-                                        font-semibold
-                                    "
-                                >
-                                    AI Research Assistant
-                                </p>
-
-                                <p
-                                    className="
-                                        text-xs
-                                        text-gray-500
-                                    "
-                                >
-                                    Mock Mode Enabled
-                                </p>
-
-                            </div>
-
+                        <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700 sm:flex">
+                            <FileText size={20} />
                         </div>
 
-                        {/* CLEAR */}
-                        <button
-                            onClick={
-                                clearChatHistory
-                            }
-                            className="
-                                bg-red-500
-                                hover:bg-red-600
-                                text-white
-                                px-4
-                                py-2
-                                rounded-xl
-                                text-sm
-                            "
-                        >
-                            Clear Chat
-                        </button>
-
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-950">
+                                {docId ? "Active Document" : "No Document Selected"}
+                            </p>
+                            <p className="max-w-[220px] truncate text-xs text-slate-500 sm:max-w-[420px]">
+                                {docId ? fileName || `Document #${docId}` : "Upload or select a document to start."}
+                            </p>
+                        </div>
                     </div>
 
-                </div>
-
-                {/* UPLOAD SECTION */}
-                <div
-                    className="
-                        bg-white/70
-                        border-b
-                        p-3
-                    "
-                >
-
-                    <div className="max-w-5xl mx-auto space-y-6">
-
-                        <Upload />
-
-                        <DocumentsList
-                            setDocId={setDocId}
-                        />
-
-                    </div>
-
-                </div>
-
-                {/* CHAT AREA */}
-                <div
-                    className="
-                        flex-1
-                        overflow-y-auto
-                        px-2
-                        py-3
-                        sm:px-4
-                        lg:px-6
-                    "
-                >
-
-                    <div className="max-w-5xl mx-auto">
-
-                        {messages.map((msg, index) => (
-
-                            <motion.div
-
-                                key={`${msg.role}-${msg.id}`}
-
-                                initial={{
-                                    opacity: 0,
-                                    y: 10,
-                                }}
-
-                                animate={{
-                                    opacity: 1,
-                                    y: 0,
-                                }}
-
-                                transition={{
-                                    delay:
-                                        index * 0.03,
-                                }}
-
-                                className={`mb-5 flex ${
-                                    msg.role === "user"
-                                        ? "justify-end"
-                                        : "justify-start"
-                                }`}
-                            >
-
-                                <div
-                                    className={`
-                                        w-fit
-                                        max-w-[95%]
-                                        sm:max-w-[85%]
-                                        lg:max-w-[70%]
-                                        rounded-3xl
-                                        p-4
-                                        shadow-lg
-                                        break-words
-                                        ${
-                                            msg.role === "user"
-                                                ? "bg-blue-600 text-white"
-                                                : "bg-white border"
-                                        }
-                                    `}
-                                >
-
-                                    {/* LABEL */}
-                                    <div
-                                        className="
-                                            flex
-                                            items-center
-                                            gap-2
-                                            text-xs
-                                            opacity-70
-                                            mb-3
-                                        "
-                                    >
-
-                                        {msg.role ===
-                                        "user" ? (
-                                            <>
-                                                <FaUserCircle />
-                                                <span>
-                                                    You
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <BsRobot />
-                                                <span>
-                                                    AI Assistant
-                                                </span>
-                                            </>
-                                        )}
-
-                                    </div>
-
-                                    {/* MESSAGE */}
-                                    <div
-                                        className="
-                                            prose
-                                            prose-sm
-                                            max-w-none
-                                        "
-                                    >
-
-                                        <ReactMarkdown>
-                                            {msg.text}
-                                        </ReactMarkdown>
-
-                                    </div>
-
-                                </div>
-
-                            </motion.div>
-
-                        ))}
-
-                        {/* LOADING */}
-                        {loading && (
-
-                            <div className="text-gray-500 italic text-sm">
-                                AI is thinking...
-                            </div>
-
-                        )}
-
-                        <div ref={bottomRef} />
-
-                    </div>
-
-                </div>
-
-                {/* INPUT */}
-                <div
-                    className="
-                        sticky
-                        bottom-0
-                        z-20
-                        bg-white/90
-                        border-t
-                        p-3
-                    "
-                >
-
-                    <div
-                        className="
-                            max-w-5xl
-                            mx-auto
-                            flex
-                            flex-col
-                            sm:flex-row
-                            gap-2
-                        "
+                    <button
+                        type="button"
+                        onClick={clearChatHistory}
+                        disabled={!docId || messages.length === 0}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
                     >
+                        <Trash2 size={16} />
+                        <span className="hidden sm:inline">Clear</span>
+                    </button>
+                </header>
 
-                        <textarea
-                            rows={1}
+                <div className="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1">
+                    <section className="max-h-[38dvh] overflow-y-auto border-b border-slate-200 bg-slate-50 p-3 sm:p-4 lg:max-h-none lg:border-b-0 lg:border-r">
+                        <div className="space-y-4">
+                            <Upload onUploaded={handleUploaded} />
+                            <DocumentsList
+                                refreshKey={documentsVersion}
+                                setDocId={setDocId}
+                                setFileName={setFileName}
+                            />
+                        </div>
+                    </section>
 
-                            value={question}
+                    <section className="flex min-h-0 flex-col bg-white">
+                        <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-6 sm:py-5">
+                            <div className="mx-auto max-w-4xl">
+                                {messages.length === 0 ? (
+                                    <div className="flex min-h-[260px] items-center justify-center sm:min-h-[420px]">
+                                        <div className="max-w-md rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+                                            <Bot className="mx-auto mb-3 text-teal-600" size={34} />
+                                            <h2 className="text-base font-semibold text-slate-950">
+                                                Ready for document questions
+                                            </h2>
+                                            <p className="mt-2 text-sm leading-6 text-slate-500">
+                                                Select a document, then ask a direct question about its content.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {messages.map((msg, index) => {
+                                            const isUser = msg.role === "user";
+                                            const isEditing = editChatId === msg.id && isUser;
 
-                            onChange={(e) => {
+                                            return (
+                                                <motion.div
+                                                    key={`${msg.role}-${msg.id}-${index}`}
+                                                    initial={{ opacity: 0, y: 8 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.18 }}
+                                                    className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+                                                >
+                                                    {!isUser && (
+                                                        <div className="mt-1 hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700 sm:flex">
+                                                            <Bot size={18} />
+                                                        </div>
+                                                    )}
 
-                                setQuestion(
-                                    e.target.value
-                                );
+                                                    <div
+                                                        className={`min-w-0 max-w-[92%] rounded-lg border px-4 py-3 shadow-sm sm:max-w-[78%] ${
+                                                            isUser
+                                                                ? "border-slate-800 bg-slate-900 text-white"
+                                                                : "border-slate-200 bg-white text-slate-800"
+                                                        }`}
+                                                    >
+                                                        <div className="mb-2 flex items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-2 text-xs font-medium opacity-75">
+                                                                {isUser ? <User size={14} /> : <Bot size={14} />}
+                                                                {isUser ? "You" : "Assistant"}
+                                                            </div>
 
-                                e.target.style.height =
-                                    "auto";
+                                                            {isUser && !isEditing && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => startEdit(msg)}
+                                                                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white"
+                                                                    title="Edit question"
+                                                                >
+                                                                    <Pencil size={14} />
+                                                                </button>
+                                                            )}
+                                                        </div>
 
-                                e.target.style.height =
-                                    `${e.target.scrollHeight}px`;
-                            }}
+                                                        {isEditing ? (
+                                                            <div className="space-y-3">
+                                                                <textarea
+                                                                    value={editText}
+                                                                    onChange={(e) => setEditText(e.target.value)}
+                                                                    rows={3}
+                                                                    className="w-full resize-none rounded-lg border border-slate-600 bg-slate-800 p-3 text-sm text-white outline-none focus:ring-2 focus:ring-teal-400"
+                                                                />
+                                                                <div className="flex justify-end gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={cancelEdit}
+                                                                        className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 px-3 text-sm text-white/80 transition hover:bg-white/10"
+                                                                    >
+                                                                        <X size={15} />
+                                                                        Cancel
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSave(msg.id)}
+                                                                        disabled={saving}
+                                                                        className="inline-flex h-9 items-center gap-2 rounded-lg bg-teal-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-400 disabled:opacity-60"
+                                                                    >
+                                                                        <Check size={15} />
+                                                                        {saving ? "Saving" : "Save"}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className={`prose prose-sm max-w-none overflow-x-auto break-words ${
+                                                                    isUser
+                                                                        ? "prose-invert prose-p:text-white"
+                                                                        : "prose-slate"
+                                                                }`}
+                                                            >
+                                                                <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                                            </div>
+                                                        )}
+                                                    </div>
 
-                            onKeyDown={(e) => {
+                                                    {isUser && (
+                                                        <div className="mt-1 hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white sm:flex">
+                                                            <User size={18} />
+                                                        </div>
+                                                    )}
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
 
-                                if (
-                                    e.key === "Enter" &&
-                                    !e.shiftKey
-                                ) {
+                                {loading && (
+                                    <div className="mt-5 flex items-center gap-3 text-sm text-slate-500">
+                                        <div className="h-2 w-2 animate-pulse rounded-full bg-teal-500" />
+                                        AI is thinking...
+                                    </div>
+                                )}
 
-                                    e.preventDefault();
+                                <div ref={bottomRef} />
+                            </div>
+                        </div>
 
-                                    askQuestion();
-                                }
-                            }}
+                        <div className="border-t border-slate-200 bg-white p-3 sm:p-4">
+                            <div className="mx-auto flex max-w-4xl gap-2">
+                                <textarea
+                                    rows={1}
+                                    value={question}
+                                    onChange={(e) => {
+                                        setQuestion(e.target.value);
+                                        e.target.style.height = "auto";
+                                        e.target.style.height = `${Math.min(e.target.scrollHeight, 180)}px`;
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            askQuestion();
+                                        }
+                                    }}
+                                    placeholder={docId ? "Ask about the selected document..." : "Select a document first..."}
+                                    disabled={!docId}
+                                    className="min-h-[46px] flex-1 resize-none rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 disabled:bg-slate-100"
+                                />
 
-                            placeholder="Ask anything..."
-
-                            className="
-                                flex-1
-                                border
-                                rounded-2xl
-                                p-4
-                                resize-none
-                                outline-none
-                            "
-                        />
-
-                        <button
-                            onClick={askQuestion}
-
-                            disabled={loading}
-
-                            className="
-                                bg-blue-600
-                                hover:bg-blue-700
-                                text-white
-                                px-6
-                                py-3
-                                rounded-2xl
-                                font-semibold
-                            "
-                        >
-
-                            {loading
-                                ? "Thinking..."
-                                : "Send"}
-
-                        </button>
-
-                    </div>
-
+                                <button
+                                    type="button"
+                                    onClick={askQuestion}
+                                    disabled={!docId || loading || !question.trim()}
+                                    className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white shadow-sm transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    title="Send question"
+                                >
+                                    <Send size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-
-            </div>
-
+            </main>
         </div>
     );
 }
