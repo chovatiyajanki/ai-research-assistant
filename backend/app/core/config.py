@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings,SettingsConfigDict
-# # from pathlib import Path
+from pathlib import Path
 
-# # BASE_DIR= Path(__file__).resolve().parent.parent.parent.parent
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = BACKEND_DIR.parent
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -9,27 +11,10 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-#     # model_config = SettingsConfigDict(
-#     #     env_file=BASE_DIR / ".env",
-#     #     env_file_encoding="utf-8"
-#     # )
+    model_config = SettingsConfigDict(
+        env_file=(ROOT_DIR / ".env", BACKEND_DIR / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 settings = Settings()
-
-# from pydantic_settings import BaseSettings
-# import os
-
-# print("=== ENV DEBUG ===")
-# print("DATABASE_URL =", os.environ.get("DATABASE_URL"))
-# print("SECRET_KEY =", os.environ.get("SECRET_KEY"))
-# print("ALGORITHM =", os.environ.get("ALGORITHM"))
-# print("ACCESS_TOKEN_EXPIRE_MINUTES =", os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
-# print("=== END DEBUG ===")
-
-# class Settings(BaseSettings):
-#     DATABASE_URL: str
-#     SECRET_KEY: str
-#     ALGORITHM: str
-#     ACCESS_TOKEN_EXPIRE_MINUTES: int
-
-# settings = Settings()
