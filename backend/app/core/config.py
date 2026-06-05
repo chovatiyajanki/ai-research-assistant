@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = (
         "http://localhost:5173,"
         "http://127.0.0.1:5173,"
-        "http://192.168.1.9:5173"
+        "http://192.168.1.9:5173,"
+        "https://ai-research-assistant-eosin.vercel.app"
     )
 
     @field_validator("DATABASE_URL", mode="before")
