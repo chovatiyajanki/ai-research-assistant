@@ -5,7 +5,7 @@ import os
 from app.services.embedding_service import get_embedding_model
 
 def load_vectorstore(doc_id: int):
-    path = f"vectorstore/{doc_id}"
+    path = f"/data/vectorstore/{doc_id}"
 
     if not os.path.exists(path):
         raise ValueError(f"Vectorstore not found for doc_id: {path}")
