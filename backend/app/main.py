@@ -15,7 +15,7 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:5173",
+    # "http://localhost:5173",
     "https://ai-research-assistant-eosin.vercel.app/",
 ]
 
