@@ -1,12 +1,12 @@
-from fastapi import FastAPI
 from app.db.session import engine
 from app.db.base import Base
 from app.models import user
 from app.api.routes import auth, users, documents, chat, history
 
 from fastapi.middleware.cors import CORSMiddleware
-
 from fastapi import FastAPI
+
+from app.core.config import settings
 
 app = FastAPI(
     title="AI Research Assistant",
@@ -18,11 +18,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", # Frontend URL
-        "http://127.0.0.1:5173",
-        "http://192.168.1.9:5173"
-    ],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
