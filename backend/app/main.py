@@ -14,6 +14,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
+origins = [
+    # "http://localhost:5173",
+    "https://ai-research-assistant-eosin.vercel.app/",
+]
+
 # configure middleware
 
 app.add_middleware(
