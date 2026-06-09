@@ -11,12 +11,21 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    SQL_ECHO: bool = False
+    EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"
+    OLLAMA_MODEL: str = "qwen3:8b"
+    OLLAMA_BASE_URL: str | None = None
+    WARM_EMBEDDING_MODEL_ON_STARTUP: bool = False
     ALLOWED_ORIGINS: str = (
         "http://localhost:5173,"
+        "http://localhost:3000,"
         "http://127.0.0.1:5173,"
         "http://192.168.1.9:5173,"
         "https://ai-research-assistant-eosin.vercel.app"
     )
+    ALLOWED_ORIGIN_REGEX: str | None = r"https://.*\.vercel\.app"
+    UPLOAD_DIR: str = "uploads"
+    VECTORSTORE_DIR: str = "vectorstore"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
@@ -28,10 +37,18 @@ class Settings(BaseSettings):
     @property
     def allowed_origins(self) -> list[str]:
         return [
-            origin.strip()
+            origin.strip().rstrip("/")
             for origin in self.ALLOWED_ORIGINS.split(",")
             if origin.strip()
         ]
+
+    @property
+    def upload_dir_path(self) -> Path:
+        return Path(self.UPLOAD_DIR).expanduser()
+
+    @property
+    def vectorstore_dir_path(self) -> Path:
+        return Path(self.VECTORSTORE_DIR).expanduser()
 
     model_config = SettingsConfigDict(
         env_file=(ROOT_DIR / ".env", BACKEND_DIR / ".env"),

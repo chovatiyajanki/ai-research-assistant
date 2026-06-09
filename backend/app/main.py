@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
 from app.core.config import settings
+from app.services.embedding_service import get_embedding_model
 
 app = FastAPI(
     title="AI Research Assistant",
@@ -14,22 +15,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# origins = [
-#     "http://localhost:5173",
-#     "https://ai-research-assistant-eosin.vercel.app/",
-# ]
-
-# configure middleware
+origins = [
+    "https://ai-research-assistant-eosin.vercel.app",  # your frontend domain
+]
 
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=settings.allowed_origins,
-     allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "https://ai-research-assistant-eosin.vercel.app",
-    ],
+    allow_origins=settings.allowed_origins,
+    allow_origin_regex=settings.ALLOWED_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +31,8 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
+    if settings.WARM_EMBEDDING_MODEL_ON_STARTUP:
+        get_embedding_model()
 
 @app.get("/")
 def root():

@@ -24,6 +24,16 @@ import {
     updateChat,
 } from "../services/chatServices";
 
+const getErrorMessage = (err, fallback) => {
+    const detail = err.response?.data?.detail;
+
+    if (typeof detail === "string" && detail.includes("Vectorstore not found")) {
+        return "This document index is missing on the backend. Delete this document and upload it again after Railway is redeployed with a persistent /data volume.";
+    }
+
+    return detail || fallback;
+};
+
 export default function Chat() {
     const [question, setQuestion] = useState("");
     const [messages, setMessages] = useState([]);
@@ -103,7 +113,7 @@ export default function Chat() {
             ]);
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.detail || "Error asking question");
+            alert(getErrorMessage(err, "Error asking question"));
         } finally {
             setLoading(false);
         }
@@ -118,7 +128,7 @@ export default function Chat() {
             setMessages([]);
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.detail || "Error clearing chat");
+            alert(getErrorMessage(err, "Error clearing chat"));
         }
     };
 
@@ -153,7 +163,7 @@ export default function Chat() {
             setEditText("");
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.detail || "Error updating chat");
+            alert(getErrorMessage(err, "Error updating chat"));
         } finally {
             setSaving(false);
         }

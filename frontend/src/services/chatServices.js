@@ -1,4 +1,4 @@
-import API from "./api";
+import API, { LONG_REQUEST_TIMEOUT } from "./api";
 
 // Get document chat history
 export const getDocHistory = (docId) =>
@@ -6,7 +6,7 @@ export const getDocHistory = (docId) =>
 
 // Ask question
 export const askQuestionAPI = (data) =>
-  API.post("/chat/ask", data);
+  API.post("/chat/ask", data, { timeout: LONG_REQUEST_TIMEOUT });
 
 // Delete history
 export const deleteHistory = (docId) =>
@@ -14,4 +14,4 @@ export const deleteHistory = (docId) =>
 
 // Edit chat
 export const updateChat = (chatId, data) =>
-  API.patch(`/chat/${chatId}`, data);
+  API.patch(`/chat/${chatId}`, data, { timeout: LONG_REQUEST_TIMEOUT });

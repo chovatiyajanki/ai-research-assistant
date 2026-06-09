@@ -37,7 +37,12 @@ export default function Login() {
             navigate("/chat");
         } catch (err) {
             console.error(err);
+            const timeoutMessage = err.code === "ECONNABORTED"
+                ? "Backend is taking too long to respond. Railway may be waking up; try again in a moment."
+                : null;
+
             setError(
+                timeoutMessage ||
                 err?.response?.data?.detail ||
                 err?.message ||
                 "Login failed"

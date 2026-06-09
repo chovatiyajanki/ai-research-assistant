@@ -10,7 +10,7 @@ from app.schemas.chat import (
 
 from app.api.deps import get_current_user
 from app.models.user import User
-from app.services.query_service import ask_question
+from app.services.query_service import DocumentFileMissingError, ask_question
 from app.db.session import get_db
 from app.crud.chat import create_chat, get_chat_history
 from app.crud.document import get_user_document
@@ -43,7 +43,9 @@ def ask(
         # Generate AI Answer
         chat_answer = ask_question(
             request.doc_id,
-            request.question
+            request.question,
+            document.file_path,
+            document.file_name
         )
 
         # Save Chat
@@ -60,16 +62,30 @@ def ask(
             "answer": chat_answer
         }
 
+    except DocumentFileMissingError as e:
+
+        raise HTTPException(
+            status_code=409,
+            detail=str(e)
+        )
+
     except ValueError as e:
 
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail=str(e)
         )
 
     except HTTPException:
 
         raise
+
+    except DocumentFileMissingError as e:
+
+        raise HTTPException(
+            status_code=409,
+            detail=str(e)
+        )
 
     except Exception as e:
 
@@ -205,7 +221,9 @@ def update_chat(
             # Regenerate AI Answer
             new_answer = ask_question(
                 chat.document_id,
-                payload.chat_question
+                payload.chat_question,
+                chat.document.file_path if chat.document else None,
+                chat.document.file_name if chat.document else None
             )
 
             # Update Answer

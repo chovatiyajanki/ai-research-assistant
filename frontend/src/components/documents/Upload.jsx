@@ -1,11 +1,15 @@
 import { useRef, useState } from "react";
 import { FileText, Loader2, UploadCloud, X } from "lucide-react";
 
-import API from "../../services/api";
+import API, { LONG_REQUEST_TIMEOUT } from "../../services/api";
 
 const MIN_UPLOAD_SIZE = 1 * 1024 * 1024;
 const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".txt", ".png", ".jpg", ".jpeg"];
+const RECOVERY_POLL_ATTEMPTS = 12;
+const RECOVERY_POLL_INTERVAL_MS = 5000;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function Upload({ onUploaded }) {
     const [file, setFile] = useState(null);
@@ -44,13 +48,17 @@ export default function Upload({ onUploaded }) {
             return;
         }
 
+        const selectedFileName = file.name;
+
         try {
             setLoading(true);
 
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await API.post("/documents/upload", formData);
+            const res = await API.post("/documents/upload", formData, {
+                timeout: LONG_REQUEST_TIMEOUT,
+            });
 
             if (res.data.doc_id) {
                 localStorage.setItem("doc_id", res.data.doc_id);
@@ -64,10 +72,47 @@ export default function Upload({ onUploaded }) {
             onUploaded?.(res.data);
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.detail || "Upload failed");
+
+            if (!err.response?.data?.detail) {
+                const recoveredDocument = await recoverCompletedUpload(selectedFileName);
+
+                if (recoveredDocument) {
+                    localStorage.setItem("doc_id", recoveredDocument.document_id);
+                    localStorage.setItem("file_name", recoveredDocument.file_name);
+                    setFile(null);
+                    onUploaded?.({
+                        doc_id: recoveredDocument.document_id,
+                        file_name: recoveredDocument.file_name,
+                    });
+                    return;
+                }
+            }
+
+            alert(err.response?.data?.detail || "Upload failed. Please check Railway logs and try again.");
         } finally {
             setLoading(false);
         }
+    };
+
+    const recoverCompletedUpload = async (fileName) => {
+        for (let attempt = 0; attempt < RECOVERY_POLL_ATTEMPTS; attempt += 1) {
+            await wait(RECOVERY_POLL_INTERVAL_MS);
+
+            try {
+                const res = await API.get("/documents/");
+                const matchedDocument = [...res.data]
+                    .reverse()
+                    .find((document) => document.file_name === fileName);
+
+                if (matchedDocument) {
+                    return matchedDocument;
+                }
+            } catch (pollError) {
+                console.error(pollError);
+            }
+        }
+
+        return null;
     };
 
     return (

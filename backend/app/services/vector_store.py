@@ -1,6 +1,6 @@
 from langchain_community.vectorstores import FAISS
 from app.services.embedding_service import get_embedding_model
-import os
+from app.core.config import settings
 
 def create_vector_store(chunks,doc_id):
     embeddings = get_embedding_model()
@@ -8,10 +8,10 @@ def create_vector_store(chunks,doc_id):
     vectorstore = FAISS.from_documents(chunks, embeddings)
 
     # create folder per doc_id
-    path = f"/data/vectorstore/{doc_id}"
-    os.makedirs(path,exist_ok=True)
+    path = settings.vectorstore_dir_path / str(doc_id)
+    path.mkdir(parents=True, exist_ok=True)
 
     # Save vectorstore to disk
-    vectorstore.save_local(path)
+    vectorstore.save_local(str(path))
 
-    return path
+    return str(path)

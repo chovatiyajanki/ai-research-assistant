@@ -5,11 +5,21 @@ backend/venv/
 
 # Python
 __pycache__/
+**/__pycache__/
 *.pyc
+**/*.pyc
+*.pyo
+**/*.pyo
+.pytest_cache/
+**/.pytest_cache/
 
 # Environment variables
 .env
+.env.*
 .env.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
 
 # Build folders
 dist/
