@@ -1,12 +1,11 @@
-from PIL import Image
-from PIL import ImageFilter
-from PIL import ImageOps
+from PIL import Image, ImageFilter, ImageOps
 import os
 import pytesseract
 
-tesseract_cmd = os.environ.get("TESSERACT_CMD")
-if tesseract_cmd:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+pytesseract.pytesseract.tesseract_cmd = os.getenv(
+    "TESSERACT_CMD",
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+)
 
 def prepare_image_for_ocr(image: Image.Image) -> Image.Image:
     image = ImageOps.grayscale(image)
@@ -19,7 +18,4 @@ def ocr_image(image: Image.Image) -> str:
 
 async def extract_image_text(file):
     image = Image.open(file.file)
-
-    text = ocr_image(image)
-
-    return text
+    return ocr_image(image)

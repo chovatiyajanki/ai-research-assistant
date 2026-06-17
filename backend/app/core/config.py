@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     SQL_ECHO: bool = False
     EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"
-    OLLAMA_MODEL: str = "qwen3:8b"
-    OLLAMA_BASE_URL: str | None = None
+    GROQ_API_KEY: str | None = None
+    MODEL_NAME: str = "llama-3.3-70b-versatile"
     WARM_EMBEDDING_MODEL_ON_STARTUP: bool = False
     ALLOWED_ORIGINS: str = (
         "http://localhost:5173,"

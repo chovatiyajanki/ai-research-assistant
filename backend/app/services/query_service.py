@@ -2,7 +2,8 @@ from pathlib import Path
 from functools import lru_cache
 
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Ollama
+# from langchain_community.llms import Ollama
+from langchain_groq import ChatGroq
 
 from app.services.embedding_service import get_embedding_model
 from app.services.file_parser import extract_text_from_path
@@ -85,16 +86,23 @@ def rebuild_vectorstore(doc_id: int, file_path: str | None, file_name: str | Non
     chunks = split_text(extracted_text)
     create_vector_store(chunks, doc_id)
 
+# @lru_cache(maxsize=1)
+# def get_llm():
+#     # return Ollama(model="llama3")
+#     kwargs = {"model": settings.OLLAMA_MODEL}
+
+#     if settings.OLLAMA_BASE_URL:
+#         kwargs["base_url"] = settings.OLLAMA_BASE_URL
+
+#     return Ollama(**kwargs)
 @lru_cache(maxsize=1)
 def get_llm():
-    # return Ollama(model="llama3")
-    kwargs = {"model": settings.OLLAMA_MODEL}
 
-    if settings.OLLAMA_BASE_URL:
-        kwargs["base_url"] = settings.OLLAMA_BASE_URL
-
-    return Ollama(**kwargs)
-
+    return ChatGroq(
+        model=settings.MODEL_NAME,
+        api_key=settings.GROQ_API_KEY,
+        temperature=0.1,
+    )
 
 def build_context_answer(query: str, docs):
     if not docs:
@@ -138,7 +146,13 @@ def ask_question(doc_id: int, query: str, file_path: str | None = None, file_nam
     context = "\n\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
-    Answer the question based on the context below.
+    You are an AI Research Assistant.
+
+    Answer ONLY using the provided context.
+
+    If the answer is not in the context, say:
+
+    'I could not find that information in the uploaded document.'
 
     Context:
     {context}
@@ -148,6 +162,7 @@ def ask_question(doc_id: int, query: str, file_path: str | None = None, file_nam
 
     Answer:
     """
+
 
     try:
         llm = get_llm()
