@@ -166,7 +166,11 @@ def ask_question(doc_id: int, query: str, file_path: str | None = None, file_nam
 
     try:
         llm = get_llm()
+
         response = llm.invoke(prompt)
-        return str(response)
-    except Exception:
+
+        return response.content
+
+    except Exception as e:
+        print("LLM Error:", e)
         return build_context_answer(query, docs)
