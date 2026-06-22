@@ -123,7 +123,7 @@ export default function Upload({ onUploaded }) {
                         Document Upload
                     </h2>
                     <p className="text-xs text-slate-500">
-                        PDF, TXT, PNG, JPG from 1 MB to 50 MB
+                        PDF, TXT, PNG, JPG from 1 KB to 50 MB
                     </p>
                 </div>
 
