@@ -3,7 +3,7 @@ import { FileText, Loader2, UploadCloud, X } from "lucide-react";
 
 import API, { LONG_REQUEST_TIMEOUT } from "../../services/api";
 
-const MIN_UPLOAD_SIZE = 1 * 1024 * 1024;
+const MIN_UPLOAD_SIZE = 1 * 1024;
 const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".txt", ".png", ".jpg", ".jpeg"];
 const RECOVERY_POLL_ATTEMPTS = 12;
@@ -30,7 +30,7 @@ export default function Upload({ onUploaded }) {
         }
 
         if (selectedFile.size < MIN_UPLOAD_SIZE) {
-            alert("File too small. Minimum upload size is 1 MB.");
+            alert("File too small. Minimum upload size is 1 KB.");
             return;
         }
 
@@ -135,7 +135,7 @@ export default function Upload({ onUploaded }) {
                         title="Remove selected file"
                     >
                         <X size={16} />
-                    </button>
+                    </button>   
                 )}
             </div>
 
