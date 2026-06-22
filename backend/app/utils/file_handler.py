@@ -6,7 +6,7 @@ from fastapi import UploadFile
 from app.core.config import settings
 
 UPLOAD_DIR = settings.upload_dir_path
-MIN_UPLOAD_SIZE = 1 * 1024 * 1024
+MIN_UPLOAD_SIZE = 1 * 1024
 MAX_UPLOAD_SIZE = 50 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".pdf", ".txt", ".png", ".jpg", ".jpeg"}
 
@@ -33,6 +33,6 @@ def save_file(file: UploadFile):
 
     if total_size < MIN_UPLOAD_SIZE:
         os.remove(file_path)
-        raise ValueError("File too small. Minimum upload size is 1 MB")
+        raise ValueError("File too small. Minimum upload size is 1 KB")
     
     return str(file_path)
