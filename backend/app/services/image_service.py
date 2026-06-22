@@ -2,10 +2,16 @@ from PIL import Image, ImageFilter, ImageOps
 import os
 import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = os.getenv(
-    "TESSERACT_CMD",
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+# pytesseract.pytesseract.tesseract_cmd = os.getenv(
+#     "TESSERACT_CMD",
+#     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# )
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = (
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    )
+else:
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 def prepare_image_for_ocr(image: Image.Image) -> Image.Image:
     image = ImageOps.grayscale(image)
