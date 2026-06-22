@@ -1,10 +1,12 @@
 from pathlib import Path
 
+from pydantic import ValidationError
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 ROOT_DIR = BACKEND_DIR.parent
+
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -30,6 +32,7 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
+        # Railway and Heroku-style URLs often use postgres://, while SQLAlchemy expects postgresql://.
         if isinstance(value, str) and value.startswith("postgres://"):
             return value.replace("postgres://", "postgresql://", 1)
         return value
@@ -44,16 +47,36 @@ class Settings(BaseSettings):
 
     @property
     def upload_dir_path(self) -> Path:
-        return Path(self.UPLOAD_DIR).expanduser()
+        path = Path(self.UPLOAD_DIR).expanduser()
+        return path if path.is_absolute() else BACKEND_DIR / path
 
     @property
     def vectorstore_dir_path(self) -> Path:
-        return Path(self.VECTORSTORE_DIR).expanduser()
+        path = Path(self.VECTORSTORE_DIR).expanduser()
+        return path if path.is_absolute() else BACKEND_DIR / path
 
     model_config = SettingsConfigDict(
+        # Keep root .env for local Docker and backend/.env for backend-only development.
         env_file=(ROOT_DIR / ".env", BACKEND_DIR / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
 
-settings = Settings()
+
+try:
+    settings = Settings()
+except ValidationError as exc:
+    missing_fields = [
+        ".".join(str(part) for part in error["loc"])
+        for error in exc.errors()
+        if error["type"] == "missing"
+    ]
+
+    if missing_fields:
+        env_files = ", ".join(str(path) for path in (ROOT_DIR / ".env", BACKEND_DIR / ".env"))
+        raise RuntimeError(
+            f"Missing required environment settings: {', '.join(missing_fields)}. "
+            f"Create a local .env file from backend/.env.example. Checked: {env_files}"
+        ) from exc
+
+    raise

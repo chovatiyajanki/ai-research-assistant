@@ -10,7 +10,12 @@ from app.schemas.chat import (
 
 from app.api.deps import get_current_user
 from app.models.user import User
-from app.services.query_service import DocumentFileMissingError, ask_question
+from app.services.query_service import (
+    DocumentFileMissingError,
+    LLMAuthenticationError,
+    LLMConfigurationError,
+    ask_question,
+)
 from app.db.session import get_db
 from app.crud.chat import create_chat, get_chat_history
 from app.crud.document import get_user_document
@@ -19,7 +24,6 @@ from app.models.chat import Chat
 router = APIRouter()
 
 
-# Ask Question + Save Chat
 @router.post("/ask", response_model=ChatResponse)
 def ask(
     request: ChatRequest,
@@ -40,7 +44,6 @@ def ask(
                 detail="Document not found"
             )
 
-        # Generate AI Answer
         chat_answer = ask_question(
             request.doc_id,
             request.question,
@@ -48,7 +51,6 @@ def ask(
             document.file_name
         )
 
-        # Save Chat
         new_chat = create_chat(
             db=db,
             chat_question=request.question,
@@ -69,6 +71,13 @@ def ask(
             detail=str(e)
         )
 
+    except (LLMAuthenticationError, LLMConfigurationError) as e:
+
+        raise HTTPException(
+            status_code=401,
+            detail=str(e)
+        )
+
     except ValueError as e:
 
         raise HTTPException(
@@ -80,13 +89,6 @@ def ask(
 
         raise
 
-    except DocumentFileMissingError as e:
-
-        raise HTTPException(
-            status_code=409,
-            detail=str(e)
-        )
-
     except Exception as e:
 
         raise HTTPException(
@@ -95,7 +97,6 @@ def ask(
         )
 
 
-# Get Chat History
 @router.get("/history/{doc_id}", response_model=list[ChatHistory])
 def history(
     doc_id: int,
@@ -121,7 +122,6 @@ def history(
     )
 
 
-# Delete Full Chat History By Document
 @router.delete("/history/{doc_id}")
 def delete_chat_history(
     doc_id: int,
@@ -162,7 +162,6 @@ def delete_chat_history(
     }
 
 
-# Delete Single Chat
 @router.delete("/single/{chat_id}")
 def delete_single_chat(
     chat_id: int,
@@ -190,7 +189,6 @@ def delete_single_chat(
     }
 
 
-# Update Chat
 @router.patch("/{chat_id}")
 def update_chat(
     chat_id: int,
@@ -215,10 +213,8 @@ def update_chat(
 
         if payload.chat_question is not None:
 
-            # Update Question
             chat.chat_question = payload.chat_question
 
-            # Regenerate AI Answer
             new_answer = ask_question(
                 chat.document_id,
                 payload.chat_question,
@@ -226,7 +222,6 @@ def update_chat(
                 chat.document.file_name if chat.document else None
             )
 
-            # Update Answer
             chat.chat_answer = new_answer
 
         db.commit()
@@ -236,6 +231,27 @@ def update_chat(
             "message": "Chat updated successfully",
             "chat": chat
         }
+
+    except DocumentFileMissingError as e:
+
+        raise HTTPException(
+            status_code=409,
+            detail=str(e)
+        )
+
+    except (LLMAuthenticationError, LLMConfigurationError) as e:
+
+        raise HTTPException(
+            status_code=401,
+            detail=str(e)
+        )
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
     except Exception as e:
 

@@ -10,9 +10,6 @@ MIN_UPLOAD_SIZE = 1 * 1024 * 1024
 MAX_UPLOAD_SIZE = 50 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".pdf", ".txt", ".png", ".jpg", ".jpeg"}
 
-# create folder if not exists
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
 def save_file(file: UploadFile):
     original_name = Path(file.filename or "").name
     extension = Path(original_name).suffix.lower()
@@ -21,6 +18,7 @@ def save_file(file: UploadFile):
         raise ValueError("Unsupported file type")
 
     safe_name = f"{uuid4().hex}{extension}"
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     file_path = UPLOAD_DIR / safe_name
     total_size = 0
 

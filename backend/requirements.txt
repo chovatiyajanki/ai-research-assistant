@@ -20,7 +20,7 @@ pypdf
 sentence-transformers
 langchain-community 
 langchain-text-splitters
-# Ollama
+# Groq
 groq
 langchain-groq
 

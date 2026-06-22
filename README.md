@@ -26,8 +26,8 @@ Set these variables in the Railway backend service:
 - `ACCESS_TOKEN_EXPIRE_MINUTES`: `60`
 - `SQL_ECHO`: `false`
 - `EMBEDDING_MODEL_NAME`: `all-MiniLM-L6-v2`
-- `OLLAMA_MODEL`: `qwen3:8b`
-- `OLLAMA_BASE_URL`: remote Ollama service URL, or leave blank to use document-excerpt fallback when Ollama is unavailable
+- `GROQ_API_KEY`: Groq API key used for chat responses
+- `MODEL_NAME`: Groq chat model name, for example `llama-3.3-70b-versatile`
 - `WARM_EMBEDDING_MODEL_ON_STARTUP`: `false`, or `true` if you prefer slower deploy startup but faster first upload/question
 - `ALLOWED_ORIGINS`: comma-separated frontend origins, without trailing slashes
 - `ALLOWED_ORIGIN_REGEX`: optional regex for Vercel preview domains
@@ -42,8 +42,8 @@ ALLOWED_ORIGINS=https://ai-research-assistant-eosin.vercel.app,http://localhost:
 ALLOWED_ORIGIN_REGEX=https://.*\.vercel\.app
 SQL_ECHO=false
 EMBEDDING_MODEL_NAME=all-MiniLM-L6-v2
-OLLAMA_MODEL=qwen3:8b
-OLLAMA_BASE_URL=
+GROQ_API_KEY=your-groq-api-key
+MODEL_NAME=llama-3.3-70b-versatile
 WARM_EMBEDDING_MODEL_ON_STARTUP=false
 UPLOAD_DIR=/data/uploads
 VECTORSTORE_DIR=/data/vectorstore

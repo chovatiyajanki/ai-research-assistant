@@ -1,8 +1,10 @@
 from pathlib import Path
 from functools import lru_cache
+import logging
+import re
 
+from groq import APIStatusError, AuthenticationError
 from langchain_community.vectorstores import FAISS
-# from langchain_community.llms import Ollama
 from langchain_groq import ChatGroq
 
 from app.services.embedding_service import get_embedding_model
@@ -11,12 +13,24 @@ from app.services.rag_service import split_text
 from app.services.vector_store import create_vector_store
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
+NOT_FOUND_ANSWER = "I could not find that information in the uploaded document."
+BROKEN_PREFIX_PATTERN = re.compile(r"^(?:[a-z]{2,18}[.:;]\s+|[a-z]{2,18}:\s+(?=\d))")
+
 
 class DocumentIndexMissingError(ValueError):
     pass
 
 
 class DocumentFileMissingError(ValueError):
+    pass
+
+
+class LLMConfigurationError(RuntimeError):
+    pass
+
+
+class LLMAuthenticationError(RuntimeError):
     pass
 
 
@@ -30,19 +44,20 @@ def load_vectorstore(doc_id: int):
     if not path.exists():
         raise DocumentIndexMissingError(f"Vectorstore not found for doc_id: {path}")
     
-    embeddings =get_embedding_model()
+    embeddings = get_embedding_model()
 
     return FAISS.load_local(
         str(path),
         embeddings,
         allow_dangerous_deserialization=True
-        )
+    )
 
 
 def resolve_document_file_path(file_path: str | None):
     if not file_path:
         return None
 
+    # Older rows may store absolute paths, uploads/foo.pdf, or only the generated filename.
     normalized_file_path = file_path.replace("\\", "/")
     stored_path = (
         settings.upload_dir_path.parent / normalized_file_path
@@ -78,6 +93,7 @@ def rebuild_vectorstore(doc_id: int, file_path: str | None, file_name: str | Non
             "Please upload the document again."
         )
 
+    # Rebuild missing FAISS indexes from the original upload after redeploys or volume resets.
     extracted_text = extract_text_from_path(resolved_path, file_name)
 
     if not extracted_text.strip():
@@ -86,17 +102,10 @@ def rebuild_vectorstore(doc_id: int, file_path: str | None, file_name: str | Non
     chunks = split_text(extracted_text)
     create_vector_store(chunks, doc_id)
 
-# @lru_cache(maxsize=1)
-# def get_llm():
-#     # return Ollama(model="llama3")
-#     kwargs = {"model": settings.OLLAMA_MODEL}
-
-#     if settings.OLLAMA_BASE_URL:
-#         kwargs["base_url"] = settings.OLLAMA_BASE_URL
-
-#     return Ollama(**kwargs)
 @lru_cache(maxsize=1)
 def get_llm():
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "your-groq-api-key":
+        raise LLMConfigurationError("Set a valid GROQ_API_KEY in backend/.env and restart the backend.")
 
     return ChatGroq(
         model=settings.MODEL_NAME,
@@ -127,6 +136,67 @@ def build_context_answer(query: str, docs):
         + "\n\n".join(excerpts)
     )
 
+
+def normalize_query(query: str):
+    if re.search(r"\bml\b", query, flags=re.IGNORECASE):
+        return re.sub(r"\bml\b", "machine learning", query, flags=re.IGNORECASE)
+
+    return query
+
+
+def clean_context_text(text: str):
+    cleaned = " ".join(text.split())
+    cleaned = re.sub(r"--- Page \d+ ---", "", cleaned).strip()
+
+    # Chunks can start in the middle of a word because of overlap; remove obvious fragments.
+    return BROKEN_PREFIX_PATTERN.sub("", cleaned).strip()
+
+
+def build_context(docs):
+    excerpts = []
+
+    for index, doc in enumerate(docs, start=1):
+        text = clean_context_text(doc.page_content)
+
+        if text:
+            excerpts.append(f"Source {index}: {text}")
+
+    return "\n\n".join(excerpts)
+
+
+def build_prompt(query: str, context: str):
+    return [
+        (
+            "system",
+            "You are an AI Research Assistant. Answer using only the uploaded document context. "
+            "Write a clean, direct answer. Do not copy page markers, broken word fragments, "
+            "or unrelated context. If the context does not contain the answer, reply exactly: "
+            f"{NOT_FOUND_ANSWER}",
+        ),
+        (
+            "human",
+            f"Document context:\n{context}\n\nQuestion: {query}",
+        ),
+    ]
+
+
+def normalize_llm_answer(answer: str | None):
+    cleaned = " ".join((answer or "").split())
+    cleaned = BROKEN_PREFIX_PATTERN.sub("", cleaned).strip()
+
+    if not cleaned:
+        return NOT_FOUND_ANSWER
+
+    if NOT_FOUND_ANSWER.lower() in cleaned.lower() and cleaned.lower() != NOT_FOUND_ANSWER.lower():
+        return NOT_FOUND_ANSWER
+
+    # Very short fragments usually come from noisy extraction or partial retrieved text.
+    if len(cleaned) < 20 and NOT_FOUND_ANSWER.lower() not in cleaned.lower():
+        return NOT_FOUND_ANSWER
+
+    return cleaned
+
+
 def ask_question(doc_id: int, query: str, file_path: str | None = None, file_name: str | None = None):
     try:
         vectorstore = load_vectorstore(doc_id)
@@ -139,38 +209,33 @@ def ask_question(doc_id: int, query: str, file_path: str | None = None, file_nam
                 "Document index could not be rebuilt. Please upload the document again."
             ) from exc
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
     
-    docs = retriever.invoke(query)
+    retrieval_query = normalize_query(query)
+    docs = retriever.invoke(retrieval_query)
 
-    context = "\n\n".join([doc.page_content for doc in docs])
+    context = build_context(docs)
 
-    prompt = f"""
-    You are an AI Research Assistant.
-
-    Answer ONLY using the provided context.
-
-    If the answer is not in the context, say:
-
-    'I could not find that information in the uploaded document.'
-
-    Context:
-    {context}
-
-    Question:
-    {query}
-
-    Answer:
-    """
-
+    if not context:
+        return NOT_FOUND_ANSWER
 
     try:
         llm = get_llm()
 
-        response = llm.invoke(prompt)
+        response = llm.invoke(build_prompt(query, context))
 
-        return response.content
+        return normalize_llm_answer(response.content)
 
-    except Exception as e:
-        print("LLM Error:", e)
+    except AuthenticationError as exc:
+        raise LLMAuthenticationError("Groq rejected the API key. Add a valid GROQ_API_KEY in backend/.env and restart the backend.") from exc
+    except APIStatusError as exc:
+        if exc.status_code in {400, 401, 403}:
+            raise LLMAuthenticationError("Groq rejected the API request. Check GROQ_API_KEY and MODEL_NAME in backend/.env.") from exc
+
+        logger.exception("Groq LLM request failed; returning retrieved document excerpts instead.")
+        return build_context_answer(query, docs)
+    except LLMConfigurationError:
+        raise
+    except Exception:
+        logger.exception("Groq LLM request failed; returning retrieved document excerpts instead.")
         return build_context_answer(query, docs)
